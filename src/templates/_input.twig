@@ -1,0 +1,147 @@
+{% import '_includes/forms' as forms %}
+
+{% do view.registerAssetBundle('lenz\\calendarfield\\assets\\field\\CalendarFieldAsset') %}
+
+{% namespace name %}
+  {% set mapInput %}
+    <div class="calendarfield--map" id="calendarfieldMap">
+      {{- forms.hidden({
+        name: 'geoLatitude',
+        value: value.geoLatitude,
+      }) -}}
+
+      {{- forms.hidden({
+        name: 'geoLongitude',
+        value: value.geoLongitude,
+      }) -}}
+
+      {{- forms.checkboxField({
+        disabled: disabled,
+        id: 'geoEnabled',
+        label: 'Attach geo location'|t('calendarfield'),
+      }) -}}
+
+      <div class="calendarfield--mapViewport">
+        <div class="calendarfield--mapPlugin"></div>
+      </div>
+
+      {% js %}
+        new CalendarField.Map({
+          container: '#{{ 'calendarfieldMap'|namespaceInputId }}',
+          disabled: {{ disabled ? 'true' : 'false' }},
+          enabled: '#{{ 'geoEnabled'|namespaceInputId }}',
+          initialLatitude: {{ field.initialLatitude }},
+          initialLongitude: {{ field.initialLongitude }},
+          latitude: 'input[name="{{ 'geoLatitude'|namespaceInputName }}"]',
+          longitude: 'input[name="{{ 'geoLongitude'|namespaceInputName }}"]',
+        });
+      {% endjs %}
+    </div>
+  {% endset %}
+
+  <div class="calendarfield" id="calendarfield">
+    <div class="calendarfield--date">
+      <div class="calendarfield--dateCommon">
+        {{- forms.dateTimeField({
+          disabled: disabled,
+          label: 'Start'|t('calendarfield'),
+          errors: value.getErrors('dateStart'),
+          name: 'dateStart',
+          required: required,
+          translatable: 'dateStart' in translatedFields,
+          value: value.dateStart,
+        }) -}}
+
+        {{- forms.dateTimeField({
+          disabled: disabled,
+          errors: value.getErrors('dateEnd'),
+          label: 'End'|t('calendarfield'),
+          name: 'dateEnd',
+          required: required,
+          translatable: 'dateEnd' in translatedFields,
+          value: value.dateEnd,
+        }) -}}
+
+        {{- forms.lightSwitchField({
+          disabled: disabled,
+          errors: value.getErrors('dateAllDay'),
+          label: 'All day'|t('calendarfield'),
+          name: 'dateAllDay',
+          on: value.dateAllDay,
+          translatable: 'dateAllDay' in translatedFields,
+        }) -}}
+      </div>
+
+      {% if field.enableStatus or field.enableRRule %}
+        <div class="calendarfield--dateExtra">
+          {% if field.enableStatus %}
+            {{- forms.selectField({
+              disabled: disabled,
+              errors: value.getErrors('status'),
+              label: 'Status'|t('calendarfield'),
+              name: 'status',
+              options: {
+                '': '(No status)'|t('calendarfield'),
+                CANCELLED: 'Cancelled'|t('calendarfield'),
+                CONFIRMED: 'Confirmed'|t('calendarfield'),
+                TENTATIVE: 'Tentative'|t('calendarfield'),
+              },
+              value: value.status,
+            }) -}}
+          {% endif %}
+
+          {% if field.enableRRule %}
+            {% include "calendarfield/_input-rrule.twig" with {
+              value: value.rruleModel,
+            } %}
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="calendarfield--content">
+      {{- forms.textField({
+        disabled: disabled,
+        errors: value.getErrors('title'),
+        label: 'Title'|t('calendarfield'),
+        maxlength: 255,
+        name: 'title',
+        translatable: 'title' in translatedFields,
+        value: value.title,
+      }) -}}
+
+      {{- forms.textareaField({
+        disabled: disabled,
+        errors: value.getErrors('description'),
+        label: 'Description'|t('calendarfield'),
+        name: 'description',
+        rows: 3,
+        translatable: 'description' in translatedFields,
+        value: value.description,
+      }) -}}
+
+      {{- forms.textareaField({
+        disabled: disabled,
+        errors: value.getErrors('location'),
+        label: 'Location'|t('calendarfield'),
+        name: 'location',
+        rows: 3,
+        translatable: 'location' in translatedFields,
+        value: value.location,
+      }) -}}
+
+      {{- forms.field({
+        errors: value.getErrors('geoLatitude')|merge(value.getErrors('geoLongitude')),
+        label: 'Geo location'|t('calendarfield'),
+      }, mapInput) -}}
+    </div>
+  </div>
+
+  {% js %}
+    new CalendarField.Field({
+      container: '#{{ 'calendarfield'|namespaceInputId }}',
+      disabled: {{ disabled ? 'true' : 'false' }},
+      dateAllDay: 'input[name="{{ 'dateAllDay'|namespaceInputName }}"]',
+    });
+  {% endjs %}
+{% endnamespace %}

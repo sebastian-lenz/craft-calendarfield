@@ -1,0 +1,91 @@
+{% import '_includes/forms' as forms %}
+
+{% namespace 'rrule' %}
+
+<div class="calendarfield--rrule calendarfield--toggleScope {{ value.freq }}">
+  {{- forms.selectField({
+    class: 'calendarfield--selectToggle',
+    disabled: disabled,
+    label: 'Frequency'|t('calendarfield'),
+    name: 'freq',
+    value: value.freq,
+    options: value.allFrequencies,
+  }) -}}
+
+  <div class="calendarfield--rruleDetails">
+    {% set intervalInput %}
+      {{- forms.text({
+        class: 'calendarfield--rruleInlineText',
+        disabled: disabled,
+        min: 1,
+        name: 'interval',
+        size: 10,
+        type: 'number',
+        value: value.interval,
+      }) -}}
+      <span class="calendarfield--rruleInlineLabel daily">{{ 'day(s)'|t('calendarfield') }}</span>
+      <span class="calendarfield--rruleInlineLabel weekly">{{ 'weeks(s)'|t('calendarfield') }}</span>
+      <span class="calendarfield--rruleInlineLabel monthly">{{ 'month(s)'|t('calendarfield') }}</span>
+      <span class="calendarfield--rruleInlineLabel yearly">{{ 'year(s)'|t('calendarfield') }}</span>
+    {% endset %}
+
+    {{- forms.field({
+      label: 'Every'|t('calendarfield'),
+      errors: value.getErrors('interval'),
+    }, intervalInput) -}}
+
+    <div class="calendarfield--rruleDetailsPage weekly">
+      {% include "calendarfield/_input-rrule-weekly.twig" %}
+    </div>
+
+    <div class="calendarfield--rruleDetailsPage monthly">
+      {% include "calendarfield/_input-rrule-monthly.twig" %}
+    </div>
+
+    <div class="calendarfield--rruleDetailsPage yearly">
+      {% include "calendarfield/_input-rrule-yearly.twig" %}
+    </div>
+
+    {% set untilInput %}
+      <div class="calendarfield--rruleUntil calendarfield--toggleScope {{ value.until }}">
+        {{- forms.select({
+          class: 'calendarfield--selectToggle',
+          name: 'until',
+          disabled: disabled,
+          value: value.until,
+          errors: value.getErrors('until')
+            |merge(value.getErrors('untilCount'))
+            |merge(value.getErrors('untilDate')),
+          options: value.allUntils,
+        }) -}}
+
+        <div class="calendarfield--rruleUntilDetails count">
+          {{- forms.text({
+            class: 'calendarfield--rruleInlineText',
+            disabled: disabled,
+            min: 1,
+            name: 'untilCount',
+            size: 10,
+            type: 'number',
+            value: value.untilCount,
+          }) -}}
+          <span class="calendarfield--rruleInlineLabel">{{ 'times'|t('calendarfield') }}</span>
+        </div>
+
+        <div class="calendarfield--rruleUntilDetails date">
+          {{- forms.date({
+            disabled: disabled,
+            name: 'untilDate',
+            value: value.untilDate,
+          }) -}}
+        </div>
+      </div>
+    {% endset %}
+
+    {{- forms.field({
+      label: 'Ends'|t('calendarfield'),
+    }, untilInput) -}}
+  </div>
+</div>
+
+{% endnamespace %}

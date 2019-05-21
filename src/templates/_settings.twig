@@ -1,0 +1,76 @@
+{% import '_includes/forms' as forms %}
+
+{{- forms.checkboxSelectField({
+  errors: field.getErrors('translatedFields'),
+  instructions: 'When setting translation method to `No translation` the following fields still will be translated per site.',
+  label: 'Force site translation for the following fields',
+  name: 'translatedFields',
+  options: {
+    description: 'Description'|t('calendarfield'),
+    location: 'Location'|t('calendarfield'),
+    title: 'Title'|t('calendarfield'),
+  },
+  values: field.translatedFields,
+}) -}}
+
+{{- forms.textField({
+  errors: field.getErrors('attachmentNameTemplate'),
+  instructions: 'A twig template defining the file name of downloaded ics files.',
+  label: 'Attachment name template',
+  name: 'attachmentNameTemplate',
+  required: true,
+  value: field.attachmentNameTemplate,
+}) -}}
+
+{{- forms.textareaField({
+  errors: field.getErrors('descriptionTemplate'),
+  instructions: 'A twig template defining the description of downloaded ics files.',
+  label: 'Description template',
+  name: 'descriptionTemplate',
+  required: true,
+  rows: 3,
+  value: field.descriptionTemplate,
+}) -}}
+
+{{- forms.lightSwitchField({
+  errors: field.getErrors('enableRRule'),
+  instructions: 'Whether the field should display a recuring rule field or not.',
+  label: 'Show recuring rule field',
+  name: 'enableRRule',
+  on: field.enableRRule,
+}) -}}
+
+{{- forms.lightSwitchField({
+  errors: field.getErrors('enableStatus'),
+  instructions: 'Whether the field should display an event status field or not.',
+  label: 'Show status field',
+  name: 'enableStatus',
+  on: field.enableStatus,
+}) -}}
+
+{{- forms.lightSwitchField({
+  errors: field.getErrors('useOwnerUrl'),
+  instructions: 'Send the url of the owning element as the event url in ics files. Although this is part of the spec, we noticed most calendar apps do not support this.',
+  label: 'Use owner url',
+  name: 'useOwnerUrl',
+  on: field.useOwnerUrl,
+}) -}}
+
+{{- forms.textField({
+  errors: field.getErrors('initialLatitude'),
+  instructions: 'Initial geo coordinates, use a tool like <a href="https://www.latlong.net/" target="_blank">latlong.net</a> to find latitude / longitude values.',
+  label: 'Initial latitude',
+  name: 'initialLatitude',
+  required: true,
+  type: 'number',
+  value: field.initialLatitude,
+}) -}}
+
+{{- forms.textField({
+  errors: field.getErrors('initialLongitude'),
+  label: 'Initial longitude',
+  name: 'initialLongitude',
+  required: true,
+  type: 'number',
+  value: field.initialLongitude,
+}) -}}

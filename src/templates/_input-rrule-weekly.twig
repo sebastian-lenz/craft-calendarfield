@@ -1,0 +1,25 @@
+{% import '_includes/forms' as forms %}
+
+{% set intervalInput %}
+  <div class="calendarfield--rruleWeekdays btngroup fullwidth">
+    {% for option in value.allWeekdaysShort %}
+      <input
+        class="calendarfield--rruleWeekdaysInput"
+        id="weekDay-{{ option.value }}"
+        name="weeklyDay[]"
+        type="checkbox"
+        value="{{ option.value }}"
+        {% if disabled %}disabled{% endif %}
+        {% if option.value in value.weeklyDay %}checked{% endif %}
+      >
+      <label class="calendarfield--rruleWeekdaysButton btn small{% if disabled %} disabled{% endif %}" for="weekDay-{{ option.value }}">
+        {{- option.label -}}
+      </label>
+    {% endfor %}
+  </div>
+{% endset %}
+
+{{- forms.field({
+  label: 'Weekdays'|t('calendarfield'),
+  errors: value.getErrors('weeklyDay'),
+}, intervalInput) -}}

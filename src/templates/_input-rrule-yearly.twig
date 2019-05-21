@@ -1,0 +1,71 @@
+{% import '_includes/forms' as forms %}
+
+{% set monthsInput %}
+  <fieldset>
+    <div class="calendarfield--rruleMonths btngroup fullwidth">
+      {% for month in value.allMonthsShort %}
+        {% if (month.value - 1) % 4 == 0 and not loop.first %}
+          </div>
+          <div class="calendarfield--rruleMonths btngroup fullwidth">
+        {% endif %}
+
+        <input
+          class="calendarfield--rruleMonthsInput"
+          id="yearly-month-{{ month.value }}"
+          name="yearlyMonths[]"
+          type="checkbox"
+          value="{{ month.value }}"
+          {% if disabled %}disabled{% endif %}
+          {% if month.value in value.yearlyMonths %}checked{% endif %}
+        >
+        <label class="calendarfield--rruleMonthsButton btn small{% if disabled %} disabled{% endif %}" for="yearly-month-{{ month.value }}">
+          {{- month.label -}}
+        </label>
+      {% endfor %}
+    </div>
+  </fieldset>
+{% endset %}
+
+{% set atLabel %}
+  <input
+    name="yearlyAt"
+    value="1"
+    type="checkbox"
+    {% if disabled %}disabled{% endif %}
+    {% if value.yearlyAt %}checked{% endif %}
+  />
+  {{ 'At'|t('calendarfield') }}
+{% endset %}
+
+{% set atInput %}
+  {{- forms.select({
+    class: 'small',
+    disabled: disabled,
+    name: 'yearlyDayOffset',
+    value: value.yearlyDayOffset,
+    options: value.allOffsets,
+  }) -}}
+
+  {{- forms.select({
+    class: 'small',
+    disabled: disabled,
+    name: 'yearlyDay',
+    value: value.yearlyDay,
+    options: value.allWeekdaysAndGroups,
+  }) -}}
+{% endset %}
+
+{{- forms.field({
+  label: 'Months'|t('calendarfield'),
+  errors: value.getErrors('yearlyMonths'),
+}, monthsInput) -}}
+
+{{- forms.field({
+  label: atLabel,
+  errors: value.getErrors('yearlyDay')
+    |merge(value.getErrors('yearlyDayOffset')),
+}, atInput) -}}
+
+
+
+

@@ -1,0 +1,80 @@
+{% import _self as includes %}
+{% import '_includes/forms' as forms %}
+
+{% macro options(attributes) %}
+  <dl class="calendarfield--rruleOptions">
+    {% for option in attributes.options %}
+      <input
+        class="calendarfield--rruleOptionsInput"
+        id="{{ attributes.name }}-{{ option.value }}"
+        name="{{ attributes.name }}"
+        type="radio"
+        value="{{ option.value }}"
+        {% if attributes.value == option.value or
+          (not attributes.value in attributes.options|keys and loop.first)
+        %}checked{% endif %}
+      />
+      <dt class="calendarfield--rruleOptionsHeader">
+        <label for="{{ attributes.name }}-{{ option.value }}">{{ option.label }}</label>
+      </dt>
+      <dd class="calendarfield--rruleOptionsContent">
+        {{ attributes.inputs[option.value]|raw }}
+      </dd>
+    {% endfor %}
+  </dl>
+{% endmacro %}
+
+{% set everyInput %}
+  <fieldset>
+    <div class="calendarfield--rruleMonthDays btngroup">
+      {% for date in range(1, 31) %}
+        {% if (date - 1) % 7 == 0 and not loop.first %}
+          </div>
+          <div class="calendarfield--rruleMonthDays btngroup">
+        {% endif %}
+
+        <input
+          class="calendarfield--rruleMonthDaysInput"
+          id="monthly-date-{{ date }}"
+          name="monthlyDate[]"
+          type="checkbox"
+          value="{{ date }}"
+          {% if disabled %}disabled{% endif %}
+          {% if date in value.monthlyDate %}checked{% endif %}
+        >
+        <label class="calendarfield--rruleMonthDaysButton btn small{% if disabled %} disabled{% endif %}" for="monthly-date-{{ date }}">
+          {{- date -}}
+        </label>
+      {% endfor %}
+    </div>
+  </fieldset>
+{% endset %}
+
+{% set atInput %}
+  {{- forms.select({
+    class: 'small',
+    disabled: disabled,
+    name: 'monthlyDayOffset',
+    value: value.monthlyDayOffset,
+    options: value.allOffsets,
+  }) -}}
+
+  {{- forms.select({
+    class: 'small',
+    disabled: disabled,
+    name: 'monthlyDay',
+    value: value.monthlyDay,
+    options: value.allWeekdaysAndGroups,
+  }) -}}
+{% endset %}
+
+{{ includes.options({
+  disabled: disabled,
+  name: 'monthlyMode',
+  value: value.monthlyMode,
+  options: value.allMonthlyModes,
+  inputs: {
+    at: atInput,
+    every: everyInput,
+  }
+}) }}
