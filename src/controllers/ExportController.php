@@ -97,6 +97,6 @@ class ExportController extends Controller
       return null;
     }
 
-    return new CalendarEvent($field, $owner, $record->getModelAttributes());
+    return $owner->getFieldValue($field->handle);
   }
 }

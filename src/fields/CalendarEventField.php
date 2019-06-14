@@ -5,11 +5,12 @@ namespace lenz\calendarfield\fields;
 use Craft;
 use craft\base\ElementInterface;
 use craft\base\Field;
+use craft\helpers\ArrayHelper;
 use craft\web\View;
 use lenz\calendarfield\models\CalendarEvent;
 use lenz\calendarfield\records\CalenderEventRecord;
 use lenz\craft\utils\foreignField\ForeignField;
-use lenz\craft\utils\foreignField\ForeignModel;
+use lenz\craft\utils\foreignField\ForeignFieldModel;
 use Throwable;
 use Twig\TemplateWrapper;
 
@@ -68,31 +69,6 @@ class CalendarEventField extends ForeignField
    */
   private $_descriptionTemplate;
 
-  /**
-   * @inheritDoc
-   */
-  const MODEL_CLASS = CalendarEvent::class;
-
-  /**
-   * @inheritDoc
-   */
-  const RECORD_CLASS = CalenderEventRecord::class;
-
-  /**
-   * @inheritDoc
-   */
-  const TEMPLATE_SETTINGS = 'calendarfield/_settings';
-
-  /**
-   * @inheritDoc
-   */
-  const TEMPLATE_INPUT = 'calendarfield/_input';
-
-  /**
-   * @inheritDoc
-   */
-  const TRANSLATION_DOMAIN = 'calendarfield';
-
 
   /**
    * @return TemplateWrapper
@@ -146,17 +122,17 @@ class CalendarEventField extends ForeignField
   // -----------------
 
   /**
-   * @param ForeignModel $value
+   * @param ForeignFieldModel $value
    * @param ElementInterface|null $element
    * @param bool $disabled
    * @return string
    */
-  protected function getHtml(ForeignModel $value, ElementInterface $element = null, $disabled = false) {
+  protected function getHtml(ForeignFieldModel $value, ElementInterface $element = null, $disabled = false) {
     $translatedFields = $this->translationMethod === Field::TRANSLATION_METHOD_NONE
       ? $this->translatedFields
       : [];
 
-    return $this->render(static::TEMPLATE_INPUT, [
+    return $this->render(static::inputTemplate(), [
       'disabled'         => $disabled,
       'field'            => $this,
       'name'             => $this->handle,
@@ -166,15 +142,39 @@ class CalendarEventField extends ForeignField
     ]);
   }
 
+  /**
+   * @inheritDoc
+   */
+  protected function toRecordAttributes(ForeignFieldModel $model, ElementInterface $element) {
+    $attributes = static::recordModelAttributes();
+    ArrayHelper::removeValue($attributes, 'uid');
+
+    return $model->getAttributes($attributes);
+  }
+
 
   // Static methods
   // --------------
 
   /**
-   * @return string
+   * @inheritDoc
    */
   static public function displayName(): string {
-    return Craft::t(self::TRANSLATION_DOMAIN, 'Calendar field');
+    return static::t('Calendar field');
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public static function inputTemplate(): string {
+    return 'calendarfield/_input';
+  }
+
+  /**
+   * @inheritDoc
+   */
+  static public function modelClass(): string {
+    return CalendarEvent::class;
   }
 
   /**
@@ -191,5 +191,45 @@ class CalendarEventField extends ForeignField
     $view->setTemplateMode($oldTemplateMode);
 
     return $template;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  static public function recordClass(): string {
+    return CalenderEventRecord::class;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public static function recordModelAttributes(): array {
+    return [
+      'title',
+      'description',
+      'location',
+      'dateAllDay',
+      'dateStart',
+      'dateEnd',
+      'geoLatitude',
+      'geoLongitude',
+      'status',
+      'rrule',
+      'uid',
+    ];
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public static function settingsTemplate(): string {
+    return 'calendarfield/_settings';
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public static function t(string $message): string {
+    return Craft::t('calendarfield', $message);
   }
 }

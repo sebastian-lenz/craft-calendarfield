@@ -5,8 +5,6 @@ namespace lenz\calendarfield\models;
 use Craft;
 use craft\base\Element;
 use craft\base\ElementInterface;
-use craft\base\Model;
-use craft\elements\MatrixBlock;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
 use DateTime;
@@ -16,16 +14,15 @@ use Eluceo\iCal\Property\Event\Geo;
 use Exception;
 use lenz\calendarfield\fields\CalendarEventField;
 use lenz\calendarfield\Plugin;
-use lenz\craft\utils\foreignField\ForeignModel;
+use lenz\craft\utils\foreignField\ForeignFieldModel;
 use Throwable;
 use Twig\TemplateWrapper;
 
 /**
  * Class CalendarEvent
- *
  * @property CalendarEventField $_field
  */
-class CalendarEvent extends ForeignModel
+class CalendarEvent extends ForeignFieldModel
 {
   /**
    * @var boolean

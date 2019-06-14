@@ -2,15 +2,11 @@
 
 namespace lenz\calendarfield\records;
 
-use craft\db\ActiveRecord;
-use craft\db\SoftDeleteTrait;
-use craft\db\Table;
+use craft\db\Migration;
 use lenz\craft\utils\foreignField\ForeignFieldRecord;
-use yii\db\ActiveQueryInterface;
 
 /**
  * Class CalenderEventRecord
- *
  * @property string $title
  * @property string $description
  * @property string $location
@@ -25,34 +21,10 @@ use yii\db\ActiveQueryInterface;
 class CalenderEventRecord extends ForeignFieldRecord
 {
   /**
-   * The name of the table used to store this record.
-   */
-  const TABLE_NAME = '{{%lenz_calendarfield}}';
-
-  /**
    * Enum values of the status field.
    */
   const STATUSES = ['TENTATIVE', 'CONFIRMED', 'CANCELLED'];
 
-
-  /**
-   * @return array
-   */
-  public function getModelAttributes() {
-    return $this->getAttributes([
-      'title',
-      'description',
-      'location',
-      'dateAllDay',
-      'dateStart',
-      'dateEnd',
-      'geoLatitude',
-      'geoLongitude',
-      'status',
-      'rrule',
-      'uid',
-    ]);
-  }
 
   /**
    * @inheritDoc
@@ -74,5 +46,34 @@ class CalenderEventRecord extends ForeignFieldRecord
     if (!($this->$attribute instanceof \DateTime)) {
       $this->addError($attribute, 'Must be DateTime');
     }
+  }
+
+
+  // Static methods
+  // --------------
+
+  /**
+   * @inheritDoc
+   */
+  static public function createTable(Migration $migration, array $columns = []) {
+    return parent::createTable($migration, [
+      'title'        => $migration->char(255),
+      'description'  => $migration->text(),
+      'location'     => $migration->text(),
+      'status'       => $migration->enum('status', CalenderEventRecord::STATUSES),
+      'dateAllDay'   => $migration->boolean(),
+      'dateStart'    => $migration->dateTime(),
+      'dateEnd'      => $migration->dateTime(),
+      'geoLatitude'  => $migration->decimal(20, 16),
+      'geoLongitude' => $migration->decimal(20, 16),
+      'rrule'        => $migration->text(),
+    ] + $columns);
+  }
+
+  /**
+   * @inheritDoc
+   */
+  static public function tableName() {
+    return '{{%lenz_calendarfield}}';
   }
 }
