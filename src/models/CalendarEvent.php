@@ -8,6 +8,7 @@ use craft\base\ElementInterface;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
 use DateTime;
+use DateInterval;
 use DateTimeZone;
 use Eluceo\iCal\Component\Event as ExportModel;
 use Eluceo\iCal\Property\Event\Geo;
@@ -160,12 +161,18 @@ class CalendarEvent extends ForeignFieldModel
       return null;
     }
 
+    $dateEnd = $this->dateEnd;
+    if ($this->dateAllDay) {
+      $dateEnd = clone $dateEnd;
+      $dateEnd->add(new DateInterval('P1D'));
+    }
+
     $event = new ExportModel();
     $event
       ->setUniqueId($this->_uid)
       ->setSummary($this->getSummary())
       ->setDtStart($this->dateStart)
-      ->setDtEnd($this->dateEnd)
+      ->setDtEnd($dateEnd)
       ->setNoTime($this->dateAllDay);
 
     $description = $this->getAdvancedDescription();

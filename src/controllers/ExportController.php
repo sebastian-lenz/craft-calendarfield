@@ -70,11 +70,13 @@ class ExportController extends Controller
    */
   private function createResponse(CalendarEvent $model) {
     $response = new Response();
+    $response->format = Response::FORMAT_RAW;
     $response->content = $this->createContent($model);
+    $response->headers->add('Content-Type', 'text/calendar');
     $response->setDownloadHeaders($model->getAttachmentName(), 'text/calendar');
+
     return $response;
   }
-
 
   /**
    * @param string $uid
