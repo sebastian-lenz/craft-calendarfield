@@ -1,0 +1,33 @@
+.calendarfield--map {
+  position: relative;
+}
+
+.calendarfield--map .checkboxfield {
+  margin: 6px 0;
+}
+
+.calendarfield--mapViewport {
+  position: absolute;
+  width: 100%;
+  height: 0;
+  padding-bottom: 50%;
+
+  border: 1px solid rgba(0, 0, 20, 0.1);
+
+  visibility: hidden;
+}
+
+.calendarfield--mapViewport.isVisible {
+  position: relative;
+  visibility: inherit;
+}
+
+.calendarfield--mapPlugin {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+

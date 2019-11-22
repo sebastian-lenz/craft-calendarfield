@@ -1,0 +1,59 @@
+.calendarfield {
+  border: 1px solid rgba(0, 0, 20, 0.1);
+}
+
+.calendarfield--date {
+  background: #f1f5f8;
+  border-bottom: 1px solid rgba(0, 0, 20, 0.1);
+}
+
+.calendarfield--dateCommon {
+  display: flex;
+  flex-flow: row wrap;
+  padding: 7px;
+}
+
+.calendarfield--dateCommon > .field {
+  margin: 7px !important;
+}
+
+.calendarfield--dateCommon > .lightswitch-field {
+  min-width: 200px;
+}
+
+.calendarfield--dateCommon > .lightswitch-field > .input {
+  padding-top: 5px;
+}
+
+.calendarfield--dateExtra {
+  padding: 14px;
+
+  border-top: 1px solid rgba(0, 0, 20, 0.1);
+}
+
+.calendarfield--content {
+  padding: 14px;
+}
+
+
+@media only screen and (min-width: 1400px) {
+  #main-content .calendarfield.hasContent {
+    display: flex;
+    flex-flow: row nowrap;
+
+    .calendarfield--date {
+      min-width: 250px;
+
+      border-right: 1px solid rgba(0, 0, 20, 0.1);
+      border-bottom: none;
+    }
+
+    .calendarfield--dateCommon {
+      flex-flow: column nowrap;
+    }
+
+    .calendarfield--content {
+      flex: 1;
+    }
+  }
+}

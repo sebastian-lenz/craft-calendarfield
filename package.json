@@ -1,0 +1,39 @@
+{
+  "name": "calendarfield",
+  "version": "1.0.0",
+  "description": "A Craft field type for storing event data.",
+  "author": "Sebastian Lenz",
+  "license": "MIT",
+  "homepage": "https://github.com/sebastian-lenz/craft-calendarfield#readme",
+  "bugs": {
+    "url": "https://github.com/sebastian-lenz/craft-calendarfield/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sebastian-lenz/craft-calendarfield.git"
+  },
+  "scripts": {
+    "build": "webpack --mode=production",
+    "watch": "webpack -w --mode=development"
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "singleQuote": true
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@fullcalendar/core": "^4.3.1",
+    "@fullcalendar/daygrid": "^4.3.0",
+    "@types/jquery": "^3.3.31",
+    "@types/leaflet": "^1.5.5",
+    "css-loader": "^3.2.0",
+    "mini-css-extract-plugin": "^0.8.0",
+    "stylus": "^0.54.7",
+    "stylus-loader": "^3.0.2",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.2",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10"
+  }
+}

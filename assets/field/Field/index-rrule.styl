@@ -1,104 +1,3 @@
-.calendarfield {
-  border: 1px solid rgba(0, 0, 20, 0.1);
-}
-
-.calendarfield--date {
-  background: #f1f5f8;
-  border-bottom: 1px solid rgba(0, 0, 20, 0.1);
-}
-
-.calendarfield--dateCommon {
-  display: flex;
-  flex-flow: row wrap;
-  padding: 7px;
-}
-
-.calendarfield--dateCommon > .field {
-  margin: 7px !important;
-}
-
-.calendarfield--dateCommon > .lightswitch-field {
-  min-width: 200px;
-}
-
-.calendarfield--dateCommon > .lightswitch-field > .input {
-  padding-top: 5px;
-}
-
-.calendarfield--dateExtra {
-  padding: 14px;
-
-  border-top: 1px solid rgba(0, 0, 20, 0.1);
-}
-
-.calendarfield--content {
-  padding: 14px;
-}
-
-
-@media only screen and (min-width: 1400px) {
-  #main-content .calendarfield {
-    display: flex;
-    flex-flow: row nowrap;
-  }
-
-  #main-content .calendarfield--date {
-    min-width: 230px;
-
-    border-right: 1px solid rgba(0, 0, 20, 0.1);
-    border-bottom: none;
-  }
-
-  #main-content .calendarfield--dateCommon {
-    flex-flow: column nowrap;
-  }
-
-  #main-content .calendarfield--content {
-    flex: 1;
-  }
-}
-
-
-/* Map */
-/* ----------------- */
-
-.calendarfield--map {
-  position: relative;
-}
-
-.calendarfield--map .checkboxfield {
-  margin: 6px 0;
-}
-
-.calendarfield--mapViewport {
-  position: absolute;
-  width: 100%;
-  height: 0;
-  padding-bottom: 50%;
-
-  border: 1px solid rgba(0, 0, 20, 0.1);
-
-  visibility: hidden;
-}
-
-.calendarfield--mapViewport.isVisible {
-  position: relative;
-  visibility: inherit;
-}
-
-.calendarfield--mapPlugin {
-  position: absolute;
-  z-index: 1;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-}
-
-
-/* RRule */
-/* ----------------- */
-
 .calendarfield--rrule > .field {
   margin: 0;
 }
@@ -176,8 +75,8 @@
 }
 
 
-/* RRule: Options */
-/* ----------------- */
+//
+// RRule: Options
 
 .calendarfield--rruleOptionsHeader {
   position: relative;
@@ -234,8 +133,8 @@
 }
 
 
-/* RRule: Weekdays / Month days */
-/* ----------------- */
+//
+// RRule: Weekdays / Month days
 
 .calendarfield--rruleWeekdays,
 .calendarfield--rruleMonths {

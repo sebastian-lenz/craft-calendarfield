@@ -20,13 +20,13 @@ class CalendarFieldAsset extends AssetBundle
     $this->js = [
       'vendor/leaflet/leaflet.js',
       'vendor/leaflet-geocoder/leaflet-geocoder.js',
-      'calendar-field.js',
+      'bundle.js',
     ];
 
     $this->css = [
       'vendor/leaflet/leaflet.css',
       'vendor/leaflet-geocoder/leaflet-geocoder.css',
-      'calendar-field.css',
+      'bundle.css',
     ];
 
     parent::init();
