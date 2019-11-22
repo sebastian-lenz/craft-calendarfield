@@ -5,8 +5,11 @@ namespace lenz\calendarfield\fields;
 use Craft;
 use craft\base\ElementInterface;
 use craft\base\Field;
+use craft\base\PreviewableFieldInterface;
+use craft\base\SortableFieldInterface;
 use craft\helpers\ArrayHelper;
 use craft\web\View;
+use Exception;
 use lenz\calendarfield\models\CalendarEvent;
 use lenz\calendarfield\records\CalenderEventRecord;
 use lenz\craft\utils\foreignField\ForeignField;
@@ -17,12 +20,19 @@ use Twig\TemplateWrapper;
 /**
  * Class CalendarEventField
  */
-class CalendarEventField extends ForeignField
+class CalendarEventField
+  extends ForeignField
+  implements PreviewableFieldInterface, SortableFieldInterface
 {
   /**
    * @var string
    */
   public $attachmentNameTemplate = '{{ dateStart|date(\'Y-m-d\') }} - {{ summary }}';
+
+  /**
+   * @var array
+   */
+  public $attributeSettings = [];
 
   /**
    * @var string
@@ -50,11 +60,6 @@ class CalendarEventField extends ForeignField
   public $initialLongitude = -0.09;
 
   /**
-   * @var array
-   */
-  public $translatedFields = [];
-
-  /**
    * @var bool
    */
   public $useOwnerUrl = false;
@@ -69,6 +74,39 @@ class CalendarEventField extends ForeignField
    */
   private $_descriptionTemplate;
 
+  /**
+   * Known attributes that have additional settings.
+   */
+  const ATTRIBUTES_WITH_SETTINGS = [
+    'description', 'location', 'title',
+  ];
+
+  /**
+   * Default field settings.
+   */
+  CONST DEFAULT_ATTRIBUTE_SETTINGS = [
+    'hidden'       => false,
+    'translatable' => false,
+  ];
+
+
+  /**
+   * @inheritDoc
+   */
+  public function __set($name, $value) {
+    if ($name == 'translatedFields') {
+      Craft::$app->getDeprecator()->log(
+        'calendarfield.translatedFields',
+        'You must update the calendar field settings.'
+      );
+
+      foreach ($value as $fieldName) {
+        $this->fieldSettings[$fieldName]['translatable'] = true;
+      }
+    } else {
+      return parent::__set($name, $value);
+    }
+  }
 
   /**
    * @return TemplateWrapper
@@ -80,6 +118,20 @@ class CalendarEventField extends ForeignField
     }
 
     return $this->_attachmentNameTemplate;
+  }
+
+  /**
+   * @param string $name
+   * @return array
+   */
+  public function getAttributeSettings($name) {
+    if (!in_array($name, self::ATTRIBUTES_WITH_SETTINGS)) {
+      throw new Exception('Unknown field name: ' . $name);
+    }
+
+    return array_key_exists($name, $this->attributeSettings)
+      ? $this->attributeSettings[$name] + self::DEFAULT_ATTRIBUTE_SETTINGS
+      : self::DEFAULT_ATTRIBUTE_SETTINGS;
   }
 
   /**
@@ -95,14 +147,43 @@ class CalendarEventField extends ForeignField
   }
 
   /**
+   * @return array
+   */
+  public function getSortOption(): array {
+    return [
+      'label'     => $this->name,
+      'orderBy'   => $this->handle . '.dateStart',
+      'attribute' => 'field:' . $this->id,
+    ];
+  }
+
+  public function getTableAttributeHtml($value, ElementInterface $element): string {
+    return $value instanceof CalendarEvent
+      ? $value->getDateRangeFormatted()
+      : '-';
+  }
+
+  /**
    * @param string $attribute
    * @return bool
    */
   public function isAttributePropagated(string $attribute) {
-    return (
-      $this->translationMethod != Field::TRANSLATION_METHOD_NONE ||
-      in_array($attribute, $this->translatedFields)
-    );
+    if ($this->translationMethod != Field::TRANSLATION_METHOD_NONE) {
+      return true;
+    }
+
+    $settings = $this->getAttributeSettings($attribute);
+    return !!$settings['translatable'];
+  }
+
+  /**
+   * @param string $name
+   * @return bool
+   * @throws Exception
+   */
+  public function isAttributeVisibe($name) {
+    $settings = $this->getAttributeSettings($name);
+    return !$settings['hidden'];
   }
 
   /**
@@ -110,11 +191,31 @@ class CalendarEventField extends ForeignField
    */
   public function rules() {
     $rules = parent::rules();
-    $rules[] = [['attachmentNameTemplate', 'descriptionTemplate', 'initialLatitude', 'initialLongitude', 'translatedFields'], 'required'];
+    $rules[] = [['attachmentNameTemplate', 'descriptionTemplate', 'initialLatitude', 'initialLongitude'], 'required'];
     $rules[] = [['attachmentNameTemplate', 'descriptionTemplate'], 'string'];
     $rules[] = [['initialLatitude', 'initialLongitude'], 'double'];
     $rules[] = [['enableRRule', 'enableStatus', 'useOwnerUrl'], 'boolean'];
+    $rules[] = ['attributeSettings', 'validateAttributeSettings'];
     return $rules;
+  }
+
+  /**
+   * @return void
+   */
+  public function validateAttributeSettings() {
+    $validated = [];
+    $values = is_array($this->attributeSettings)
+      ? $this->attributeSettings
+      : [];
+
+    foreach (self::ATTRIBUTES_WITH_SETTINGS as $name) {
+      $validated[$name] = [
+        'hidden'       => !!ArrayHelper::getValue($values, [$name, 'hidden'], false),
+        'translatable' => !!ArrayHelper::getValue($values, [$name, 'translatable'], false),
+      ];
+    }
+
+    $this->attributeSettings = $validated;
   }
 
 
@@ -128,17 +229,12 @@ class CalendarEventField extends ForeignField
    * @return string
    */
   protected function getHtml(ForeignFieldModel $value, ElementInterface $element = null, $disabled = false) {
-    $translatedFields = $this->translationMethod === Field::TRANSLATION_METHOD_NONE
-      ? $this->translatedFields
-      : [];
-
     return $this->render(static::inputTemplate(), [
-      'disabled'         => $disabled,
-      'field'            => $this,
-      'name'             => $this->handle,
-      'required'         => $this->required,
-      'translatedFields' => $translatedFields,
-      'value'            => $value,
+      'disabled' => $disabled,
+      'field'    => $this,
+      'name'     => $this->handle,
+      'required' => $this->required,
+      'value'    => $value,
     ]);
   }
 

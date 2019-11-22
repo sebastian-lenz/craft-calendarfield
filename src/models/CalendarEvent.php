@@ -153,6 +153,54 @@ class CalendarEvent extends ForeignFieldModel
   }
 
   /**
+   * @return string
+   */
+  public function getDownloadUrl() {
+    return Craft::$app->getUrlManager()->createAbsoluteUrl([
+      'calendarfield/export/index', 'uid' => $this->_uid
+    ]);
+  }
+
+  /**
+   * @return string
+   * @throws \yii\base\InvalidConfigException
+   */
+  public function getDateEndFormatted() : string {
+    return $this->dateAllDay
+      ? Craft::$app->getFormatter()->asDate($this->dateEnd)
+      : Craft::$app->getFormatter()->asDatetime($this->dateEnd);
+  }
+
+  /**
+   * @return string
+   * @throws \yii\base\InvalidConfigException
+   */
+  public function getDateRangeFormatted() {
+    $dateEnd   = $this->dateEnd;
+    $dateStart = $this->dateStart;
+    $formatter = Craft::$app->getFormatter();
+
+    if ($dateStart->getTimestamp() == $dateEnd->getTimestamp()) {
+      return $this->getDateStartFormatted();
+    }
+
+    return implode(' - ', [
+      $this->getDateStartFormatted(),
+      $this->getDateEndFormatted()
+    ]);
+  }
+
+  /**
+   * @return string
+   * @throws \yii\base\InvalidConfigException
+   */
+  public function getDateStartFormatted() : string {
+    return $this->dateAllDay
+      ? Craft::$app->getFormatter()->asDate($this->dateStart)
+      : Craft::$app->getFormatter()->asDatetime($this->dateStart);
+  }
+
+  /**
    * @return ExportModel|null
    * @throws Throwable
    */
@@ -215,15 +263,6 @@ class CalendarEvent extends ForeignFieldModel
 
     return Plugin::getInstance()
       ->triggerExportEvent($this, $event);
-  }
-
-  /**
-   * @return string
-   */
-  public function getDownloadUrl() {
-    return Craft::$app->getUrlManager()->createAbsoluteUrl([
-      'calendarfield/export/index', 'uid' => $this->_uid
-    ]);
   }
 
   /**

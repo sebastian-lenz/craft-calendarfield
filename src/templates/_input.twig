@@ -48,7 +48,6 @@
           errors: value.getErrors('dateStart'),
           name: 'dateStart',
           required: required,
-          translatable: 'dateStart' in translatedFields,
           value: value.dateStart,
         }) -}}
 
@@ -58,7 +57,6 @@
           label: 'End'|t('calendarfield'),
           name: 'dateEnd',
           required: required,
-          translatable: 'dateEnd' in translatedFields,
           value: value.dateEnd,
         }) -}}
 
@@ -68,7 +66,6 @@
           label: 'All day'|t('calendarfield'),
           name: 'dateAllDay',
           on: value.dateAllDay,
-          translatable: 'dateAllDay' in translatedFields,
         }) -}}
       </div>
 
@@ -100,40 +97,46 @@
     </div>
 
     <div class="calendarfield--content">
-      {{- forms.textField({
-        disabled: disabled,
-        errors: value.getErrors('title'),
-        label: 'Title'|t('calendarfield'),
-        maxlength: 255,
-        name: 'title',
-        translatable: 'title' in translatedFields,
-        value: value.title,
-      }) -}}
+      {% if field.isAttributeVisibe('title') %}
+        {{- forms.textField({
+          disabled: disabled,
+          errors: value.getErrors('title'),
+          label: 'Title'|t('calendarfield'),
+          maxlength: 255,
+          name: 'title',
+          translatable: field.isAttributePropagated('title'),
+          value: value.title,
+        }) -}}
+      {% endif %}
 
-      {{- forms.textareaField({
-        disabled: disabled,
-        errors: value.getErrors('description'),
-        label: 'Description'|t('calendarfield'),
-        name: 'description',
-        rows: 3,
-        translatable: 'description' in translatedFields,
-        value: value.description,
-      }) -}}
+      {% if field.isAttributeVisibe('description') %}
+        {{- forms.textareaField({
+          disabled: disabled,
+          errors: value.getErrors('description'),
+          label: 'Description'|t('calendarfield'),
+          name: 'description',
+          rows: 3,
+          translatable: field.isAttributePropagated('description'),
+          value: value.description,
+        }) -}}
+      {% endif %}
 
-      {{- forms.textareaField({
-        disabled: disabled,
-        errors: value.getErrors('location'),
-        label: 'Location'|t('calendarfield'),
-        name: 'location',
-        rows: 3,
-        translatable: 'location' in translatedFields,
-        value: value.location,
-      }) -}}
+      {% if field.isAttributeVisibe('location') %}
+        {{- forms.textareaField({
+          disabled: disabled,
+          errors: value.getErrors('location'),
+          label: 'Location'|t('calendarfield'),
+          name: 'location',
+          rows: 3,
+          translatable: field.isAttributePropagated('location'),
+          value: value.location,
+        }) -}}
 
-      {{- forms.field({
-        errors: value.getErrors('geoLatitude')|merge(value.getErrors('geoLongitude')),
-        label: 'Geo location'|t('calendarfield'),
-      }, mapInput) -}}
+        {{- forms.field({
+          errors: value.getErrors('geoLatitude')|merge(value.getErrors('geoLongitude')),
+          label: 'Geo location'|t('calendarfield'),
+        }, mapInput) -}}
+      {% endif %}
     </div>
   </div>
 

@@ -1,17 +1,28 @@
 {% import '_includes/forms' as forms %}
 
-{{- forms.checkboxSelectField({
-  errors: field.getErrors('translatedFields'),
-  instructions: 'When setting translation method to `No translation` the following fields still will be translated per site.',
-  label: 'Force site translation for the following fields',
-  name: 'translatedFields',
-  options: {
-    description: 'Description'|t('calendarfield'),
-    location: 'Location'|t('calendarfield'),
-    title: 'Title'|t('calendarfield'),
-  },
-  values: field.translatedFields,
-}) -}}
+<style>
+  .cfTable {
+    width: 100%;
+    border: 1px solid #e3e5e8;
+  }
+
+  .cfTable th {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e3e5e8;
+    background: #f1f5f8;
+  }
+
+  .cfTable td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e3e5e8;
+    text-align: center !important;
+  }
+
+  .cfTable tr:last-child td,
+  .cfTable tr:last-child th {
+    border-bottom: none;
+  }
+</style>
 
 {{- forms.textField({
   errors: field.getErrors('attachmentNameTemplate'),
@@ -74,3 +85,43 @@
   type: 'number',
   value: field.initialLongitude,
 }) -}}
+
+<div class="field has-errors">
+  <div class="heading">
+    <label>Extra fields settings</label>
+    <div class="instructions">
+      <p>Controls the visibility of extra fields. If "Translatable" is set, the field can be translated even if the containing field is set to "Not translatable".</p>
+    </div>
+  </div>
+  <div class="input ltr errors">
+    <table class="cfTable">
+      <tr>
+        <th><b>Field name</b></th>
+        <td><b>Hidden</b></td>
+        <td><b>Translatable</b></td>
+      </tr>
+      {% for attributeName in ['title', 'description', 'location'] %}
+        {% set attributeSettings = field.getAttributeSettings(attributeName) %}
+        <tr>
+          <th>{{ attributeName|ucfirst }}</th>
+          <td>
+            <input
+              type="checkbox"
+              name="attributeSettings[{{ attributeName }}][hidden]"
+              value="1"
+              {% if attributeSettings.hidden %} checked{% endif %}
+            />
+          </td>
+          <td>
+            <input
+              type="checkbox"
+              name="attributeSettings[{{ attributeName }}][translatable]"
+              value="1"
+              {% if attributeSettings.translatable %} checked{% endif %}
+            />
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
