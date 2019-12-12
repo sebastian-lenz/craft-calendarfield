@@ -31,8 +31,8 @@ declare namespace Garnish {
   export const SECONDARY_CLICK: 3;
 
   // Axis constants
-  export const X_AXIS: "x";
-  export const Y_AXIS: "y";
+  export const X_AXIS: 'x';
+  export const Y_AXIS: 'y';
 
   export const FX_DURATION: 100;
 
@@ -289,6 +289,27 @@ declare namespace Craft {
     params?: { [name: string]: string }
   ): string;
 
+  /**
+   * Returns an action URL.
+   */
+  export function getActionUrl(path: string, params?: any): string;
+
+  /**
+   * Posts an action request to the server.
+   *
+   * @param {string} action
+   * @param {object|undefined} data
+   * @param {function|undefined} callback
+   * @param {object|undefined} options
+   * @return jqXHR
+   */
+  export function postActionRequest(
+    action: string,
+    data?: any,
+    callback?: JQuery.TypeOrArray<JQuery.Ajax.SuccessCallback<any>>,
+    options?: JQuery.AjaxSettings
+  ): JQuery.jqXHR;
+
   export interface BaseElementSelectCriteria {
     [key: string]: any;
   }
@@ -300,7 +321,7 @@ declare namespace Craft {
     sources: string[] | null;
     criteria?: BaseElementSelectCriteria | null;
     sourceElementId: number | null;
-    viewMode: "small" | "large";
+    viewMode: 'small' | 'large';
     limit: number | null;
     modalStorageKey: string | null;
   }
@@ -378,8 +399,10 @@ declare namespace Craft {
     load($elements: JQuery): void;
   }
 
+  export function getLocalStorage(key: string): any;
+  export function setLocalStorage(key: string, value: any): void;
   export function setElementSize(
     element: HTMLElement | JQuery,
-    size: "large" | "small"
+    size: 'large' | 'small'
   ): void;
 }

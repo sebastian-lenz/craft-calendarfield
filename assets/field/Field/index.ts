@@ -1,3 +1,5 @@
+import DatePair from './DatePair';
+
 import './index.styl';
 import './index-rrule.styl';
 
@@ -21,6 +23,7 @@ export default class Field {
     }
 
     this.createSelectToggles();
+    this.createDatePair();
     this.updateState();
 
     if (!settings.disabled) {
@@ -29,6 +32,28 @@ export default class Field {
         that.updateState();
       });
     }
+  }
+
+  createDatePair() {
+    const $wrapper = this.$container.find('.calendarfield--dateCommon');
+    if (!$wrapper.length) {
+      return;
+    }
+
+    $wrapper
+      .find('.datewrapper > input, .timewrapper > input')
+      .each((index, element) => {
+        const name = element.getAttribute('name') || '';
+        const match = /\[(?:date(End|Start))\]\[(date|time)\]/.exec(name);
+        if (match) {
+          element.classList.add(
+            `${match[1]}`.toLowerCase(),
+            `${match[2]}`.toLowerCase()
+          );
+        }
+      });
+
+    new DatePair($wrapper.get(0));
   }
 
   createSelectToggles() {

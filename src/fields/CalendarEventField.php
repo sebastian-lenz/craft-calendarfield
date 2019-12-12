@@ -7,15 +7,17 @@ use craft\base\ElementInterface;
 use craft\base\Field;
 use craft\base\PreviewableFieldInterface;
 use craft\base\SortableFieldInterface;
+use craft\errors\DeprecationException;
 use craft\helpers\ArrayHelper;
 use craft\web\View;
 use Exception;
 use lenz\calendarfield\models\CalendarEvent;
-use lenz\calendarfield\records\CalenderEventRecord;
+use lenz\calendarfield\records\CalendarEventRecord;
 use lenz\craft\utils\foreignField\ForeignField;
 use lenz\craft\utils\foreignField\ForeignFieldModel;
 use Throwable;
 use Twig\TemplateWrapper;
+use yii\base\InvalidConfigException;
 
 /**
  * Class CalendarEventField
@@ -92,6 +94,7 @@ class CalendarEventField
 
   /**
    * @inheritDoc
+   * @throws DeprecationException
    */
   public function __set($name, $value) {
     if ($name == 'translatedFields') {
@@ -104,7 +107,7 @@ class CalendarEventField
         $this->fieldSettings[$fieldName]['translatable'] = true;
       }
     } else {
-      return parent::__set($name, $value);
+      parent::__set($name, $value);
     }
   }
 
@@ -123,6 +126,7 @@ class CalendarEventField
   /**
    * @param string $name
    * @return array
+   * @throws Exception
    */
   public function getAttributeSettings($name) {
     if (!in_array($name, self::ATTRIBUTES_WITH_SETTINGS)) {
@@ -157,6 +161,12 @@ class CalendarEventField
     ];
   }
 
+  /**
+   * @param mixed $value
+   * @param ElementInterface $element
+   * @return string
+   * @throws InvalidConfigException
+   */
   public function getTableAttributeHtml($value, ElementInterface $element): string {
     return $value instanceof CalendarEvent
       ? $value->getDateRangeFormatted()
@@ -166,10 +176,15 @@ class CalendarEventField
   /**
    * @param string $attribute
    * @return bool
+   * @throws Exception
    */
   public function isAttributePropagated(string $attribute) {
     if ($this->translationMethod != Field::TRANSLATION_METHOD_NONE) {
       return true;
+    }
+
+    if (!array_key_exists($attribute, self::ATTRIBUTES_WITH_SETTINGS)) {
+      return false;
     }
 
     $settings = $this->getAttributeSettings($attribute);
@@ -240,12 +255,23 @@ class CalendarEventField
 
   /**
    * @inheritDoc
+   * @throws Exception
    */
   protected function toRecordAttributes(ForeignFieldModel $model, ElementInterface $element) {
+    if (!($model instanceof CalendarEvent)) {
+      throw new Exception('Invalid model given');
+    }
+
+    $model->normalizeTimezone();
+
+    $root = $model->getRoot();
     $attributes = static::recordModelAttributes();
     ArrayHelper::removeValue($attributes, 'uid');
 
-    return $model->getAttributes($attributes);
+    return $model->getAttributes($attributes) + [
+      'rootId'   => is_null($root) ? null : $root->getId(),
+      'dateTill' => $model->getDateTill(),
+    ];
   }
 
 
@@ -293,7 +319,7 @@ class CalendarEventField
    * @inheritDoc
    */
   static public function recordClass(): string {
-    return CalenderEventRecord::class;
+    return CalendarEventRecord::class;
   }
 
   /**

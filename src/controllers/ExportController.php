@@ -9,7 +9,7 @@ use craft\web\Response;
 use Eluceo\iCal\Component\Calendar;
 use lenz\calendarfield\fields\CalendarEventField;
 use lenz\calendarfield\models\CalendarEvent;
-use lenz\calendarfield\records\CalenderEventRecord;
+use lenz\calendarfield\records\CalendarEventRecord;
 use Throwable;
 use yii\web\NotFoundHttpException;
 
@@ -83,7 +83,7 @@ class ExportController extends Controller
    * @return CalendarEvent|null
    */
   private function loadModel($uid) {
-    $record = CalenderEventRecord::findOne(['uid' => $uid]);
+    $record = CalendarEventRecord::findOne(['uid' => $uid]);
     if (is_null($record)) {
       return null;
     }

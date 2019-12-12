@@ -4,7 +4,7 @@ namespace lenz\calendarfield\migrations;
 
 use craft\db\Migration;
 use craft\db\Table;
-use lenz\calendarfield\records\CalenderEventRecord;
+use lenz\calendarfield\records\CalendarEventRecord;
 
 /**
  * Class Install
@@ -15,11 +15,9 @@ class Install extends Migration
    * @inheritdoc
    */
   public function safeUp() {
-    $table = CalenderEventRecord::tableName();
+    $table = CalendarEventRecord::tableName();
     if (!$this->db->tableExists($table)) {
-      CalenderEventRecord::createTable($this);
-      $this->createIndex(null, $table, ['dateStart']);
-      $this->createIndex(null, $table, ['dateEnd']);
+      CalendarEventRecord::createTable($this);
     }
   }
 
@@ -27,7 +25,7 @@ class Install extends Migration
    * @inheritdoc
    */
   public function safeDown() {
-    CalenderEventRecord::dropTable($this);
+    CalendarEventRecord::dropTable($this);
     return true;
   }
 }

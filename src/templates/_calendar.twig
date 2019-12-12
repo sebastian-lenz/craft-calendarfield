@@ -1,0 +1,25 @@
+{% extends "_layouts/cp" %}
+
+{% do view.registerAssetBundle('lenz\\calendarfield\\assets\\calendar\\CalendarAsset') %}
+
+{% set docTitle = 'Calendar' %}
+
+{% block contextMenu %}
+  {% if showSiteMenu %}
+    {% include "_elements/sitemenu" %}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div class="calendarfield--calendarWrap">
+    <div class="calendarfield--calendar" id="calendar">
+    </div>
+  </div>
+{% endblock %}
+
+{% js %}
+  new CalendarField.Calendar(
+    '#{{ 'calendar'|namespaceInputId }}',
+    {{ calendarOptions|json_encode()|raw }}
+  );
+{% endjs %}

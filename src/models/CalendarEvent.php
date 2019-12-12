@@ -16,11 +16,14 @@ use Exception;
 use lenz\calendarfield\fields\CalendarEventField;
 use lenz\calendarfield\Plugin;
 use lenz\craft\utils\foreignField\ForeignFieldModel;
+use RRule\RRule;
 use Throwable;
 use Twig\TemplateWrapper;
+use yii\base\InvalidConfigException;
 
 /**
  * Class CalendarEvent
+ *
  * @property CalendarEventField $_field
  */
 class CalendarEvent extends ForeignFieldModel
@@ -56,11 +59,6 @@ class CalendarEvent extends ForeignFieldModel
   public $geoLongitude;
 
   /**
-   * @var boolean
-   */
-  public $isRecurring = false;
-
-  /**
    * @var string
    */
   public $location;
@@ -81,9 +79,9 @@ class CalendarEvent extends ForeignFieldModel
   public $title;
 
   /**
-   * @var CalendarEventRRule
+   * @var SimpleRecurrenceRule
    */
-  private $_rruleModel;
+  private $_simpleRRule;
 
   /**
    * @var string
@@ -109,11 +107,13 @@ class CalendarEvent extends ForeignFieldModel
       $config['dateStart'] = null;
     }
 
+    // If the rRule form data is present, convert it to an instance
+    // of SimpleRecurrenceRule
     if (
       array_key_exists('rrule', $config) &&
       is_array($config['rrule'])
     ) {
-      $this->_rruleModel = new CalendarEventRRule($config['rrule']);
+      $this->_simpleRRule = new SimpleRecurrenceRule($config['rrule']);
       unset($config['rrule']);
     }
 
@@ -163,7 +163,7 @@ class CalendarEvent extends ForeignFieldModel
 
   /**
    * @return string
-   * @throws \yii\base\InvalidConfigException
+   * @throws InvalidConfigException
    */
   public function getDateEndFormatted() : string {
     return $this->dateAllDay
@@ -173,12 +173,11 @@ class CalendarEvent extends ForeignFieldModel
 
   /**
    * @return string
-   * @throws \yii\base\InvalidConfigException
+   * @throws InvalidConfigException
    */
   public function getDateRangeFormatted() {
     $dateEnd   = $this->dateEnd;
     $dateStart = $this->dateStart;
-    $formatter = Craft::$app->getFormatter();
 
     if ($dateStart->getTimestamp() == $dateEnd->getTimestamp()) {
       return $this->getDateStartFormatted();
@@ -192,12 +191,37 @@ class CalendarEvent extends ForeignFieldModel
 
   /**
    * @return string
-   * @throws \yii\base\InvalidConfigException
+   * @throws InvalidConfigException
    */
   public function getDateStartFormatted() : string {
     return $this->dateAllDay
       ? Craft::$app->getFormatter()->asDate($this->dateStart)
       : Craft::$app->getFormatter()->asDatetime($this->dateStart);
+  }
+
+  /**
+   * @return DateTime|null
+   */
+  public function getDateTill() {
+    $rRule = $this->getRRuleResolver();
+    if (is_null($this->dateStart) || is_null($rRule)) {
+      return $this->dateEnd;
+    } elseif ($rRule->isInfinite()) {
+      return null;
+    }
+
+    $count = $rRule->count();
+    if ($count < 1) {
+      return $this->dateEnd;
+    }
+
+    /** @var DateTime $result */
+    $result = $rRule[$count - 1];
+    if (!is_null($this->dateEnd)) {
+      $result->add($this->dateEnd->diff($this->dateStart));
+    }
+
+    return $result;
   }
 
   /**
@@ -240,7 +264,7 @@ class CalendarEvent extends ForeignFieldModel
     }
 
     if ($this->_field->enableRRule && !empty($this->rrule)) {
-      $rule = $this->getRRuleModel()->toExportRule();
+      $rule = $this->getSimpleRecurrenceRule()->toRecurrenceRule();
       if (!is_null($rule)) {
         $event->addRecurrenceRule($rule);
       }
@@ -292,26 +316,45 @@ class CalendarEvent extends ForeignFieldModel
   }
 
   /**
-   * @return string|null
+   * @param mixed $after
+   * @param mixed $before
    */
-  public function getRootUrl() {
-    $element = $this->getRoot();
-    if (is_null($element)) {
-      return null;
-    }
-
-    return $element->getUrl();
+  public function getRecurrences($after, $before) {
+    return Recurrence::createForModel($this, $after, $before);
   }
 
   /**
-   * @return CalendarEventRRule
+   * @return string|null
    */
-  public function getRRuleModel() {
-    if (!isset($this->_rruleModel)) {
-      $this->_rruleModel = CalendarEventRRule::fromRRule($this->rrule);
+  public function getRootUrl() {
+    $root = $this->getRoot();
+    if (is_null($root)) {
+      return null;
     }
 
-    return $this->_rruleModel;
+    return $root->getUrl();
+  }
+
+  /**
+   * @return RRule|null
+   */
+  public function getRRuleResolver() {
+    if (is_null($this->rrule) || empty($this->rrule)) {
+      return null;
+    }
+
+    return new RRule($this->rrule, $this->dateStart);
+  }
+
+  /**
+   * @return SimpleRecurrenceRule
+   */
+  public function getSimpleRecurrenceRule() {
+    if (!isset($this->_simpleRRule)) {
+      $this->_simpleRRule = SimpleRecurrenceRule::fromString($this->rrule);
+    }
+
+    return $this->_simpleRRule;
   }
 
   /**
@@ -358,6 +401,26 @@ class CalendarEvent extends ForeignFieldModel
   }
 
   /**
+   * @throws Exception
+   */
+  public function normalizeTimezone() {
+    if ($this->dateAllDay) {
+      $dateEnd   = $this->dateEnd;
+      $dateStart = $this->dateStart;
+
+      if (!is_null($this->dateStart)) {
+        CalendarEvent::convertTimezone('UTC', $dateStart, $dateStart);
+        $dateStart->setTime(0, 0, 0);
+      }
+
+      if (!is_null($dateEnd)) {
+        CalendarEvent::convertTimezone('UTC', $dateEnd, $dateEnd);
+        $dateEnd->setTime(23, 59, 59);
+      }
+    }
+  }
+
+  /**
    * @inheritDoc
    */
   public function rules() {
@@ -365,7 +428,6 @@ class CalendarEvent extends ForeignFieldModel
       [['title', 'description', 'location'], 'string'],
       [['dateAllDay'], 'boolean'],
       [['geoLatitude', 'geoLongitude'], 'double'],
-
       ['dateStart', 'validateDate'],
       ['dateEnd', 'validateDateEnd'],
       ['rrule', 'validateRRule', 'skipOnEmpty' => false],
@@ -400,11 +462,6 @@ class CalendarEvent extends ForeignFieldModel
         '{attribute} must be a date/time value.'
       ));
     }
-
-    if ($this->dateAllDay && !is_null($value)) {
-      self::convertTimezone('UTC', $value, $value);
-      $value->setTime(0, 0, 0);
-    }
   }
 
   /**
@@ -414,9 +471,6 @@ class CalendarEvent extends ForeignFieldModel
   public function validateDateEnd($attribute) {
     $value = $this->$attribute;
     $this->validateDate($attribute);
-    if ($this->dateAllDay && !is_null($value)) {
-      $value->setTime(23, 59, 59);
-    }
 
     if (is_null($this->dateStart)) {
       $this->$attribute = $value = null;
@@ -435,15 +489,15 @@ class CalendarEvent extends ForeignFieldModel
    * @param $attribute
    */
   public function validateRRule($attribute) {
-    if (isset($this->_rruleModel)) {
-      $this->_rruleModel->validate();
+    if (isset($this->_simpleRRule)) {
+      $this->_simpleRRule->validate();
 
-      if ($this->_rruleModel->hasErrors()) {
+      if ($this->_simpleRRule->hasErrors()) {
         $this->addError($attribute, Craft::t('calendarfield',
           '{attribute} contains errors'
         ));
       } else {
-        $this->$attribute = (string)$this->_rruleModel;
+        $this->$attribute = (string)$this->_simpleRRule;
       }
     }
   }
@@ -460,7 +514,8 @@ class CalendarEvent extends ForeignFieldModel
     $context = $this->getAttributes() + [
       'element'  => $this->getRoot(),
       'owner'    => $this->_owner,
-      'ownerUrl' => $this->getRootUrl(),
+      'ownerUrl' => is_null($this->_owner) ? null : $this->_owner->getUrl(),
+      'rootUrl'  => $this->getRootUrl(),
       'summary'  => $this->getSummary(),
     ];
 

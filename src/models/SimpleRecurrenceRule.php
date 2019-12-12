@@ -5,11 +5,17 @@ namespace lenz\calendarfield\models;
 use Craft;
 use craft\base\Model;
 use DateTime;
-use Eluceo\iCal\Property\Event\RecurrenceRule;
-use Recurr\Rule;
+use Eluceo\iCal\Component\Timezone;
 use Throwable;
 
-class CalendarEventRRule extends Model
+/**
+ * Class SimpleRecurrenceRule
+ *
+ * This is a simplified edit model for the full RecurrenceRule
+ * specification. It is only used within the control panel edit
+ * form.
+ */
+class SimpleRecurrenceRule extends Model
 {
   /**
    * @var string
@@ -90,9 +96,9 @@ class CalendarEventRRule extends Model
       return '';
     }
 
-    $rule = $this->toRecurrRule();
+    $rule = $this->toRecurrenceRule();
     return $rule
-      ? $rule->getString()
+      ? $rule->getEscapedValue()
       : '';
   }
 
@@ -368,26 +374,9 @@ class CalendarEventRRule extends Model
   /**
    * @return RecurrenceRule|null
    */
-  public function toExportRule() {
+  public function toRecurrenceRule() {
     try {
-      $rule = new RecurrenceRule();
-      $this->putRule($rule);
-      return $rule;
-    } catch (Throwable $error) {
-      Craft::error($error->getMessage());
-    }
-
-    return null;
-  }
-
-  /**
-   * @return Rule|null
-   */
-  public function toRecurrRule() {
-    try {
-      $rule = new Rule();
-      $this->putRule($rule);
-      return $rule;
+      return $this->createRecurrenceRule();
     } catch (Throwable $error) {
       Craft::error($error->getMessage());
     }
@@ -397,7 +386,7 @@ class CalendarEventRRule extends Model
 
   /**
    * @param string $attribute
-   * @param array $range
+   * @param array $params
    */
   public function validateArrayOf($attribute, $params) {
     $items = $this->$attribute;
@@ -434,34 +423,33 @@ class CalendarEventRRule extends Model
   // ---------------
 
   /**
-   * @param array $options
-   * @return array
-   */
-  private function getValues($options) {
-    return array_map(function($option) {
-      return $option['value'];
-    }, $options);
-  }
-
-  /**
-   * @param Rule|RecurrenceRule $rule
+   * @param RecurrenceRule $rule
    * @param string $day
-   * @param int $offset
-   * @throws Throwable
+   * @param string $offset
+   * @return true
    */
-  private function putByDay($rule, $day, $offset) {
-    $byDay = explode(',', $day);
-    $bySetOffset = [$offset];
+  private function applyByDay(RecurrenceRule $rule, string $day, string $offset) {
+    $byDay = $rule->getByDayArray();
+    $bySetPosition = $rule->getBySetPos();
 
-    $rule->setByDay($byDay);
-    $rule->setBySetPosition($bySetOffset);
+    if (is_array($byDay) && count($byDay) > 0) {
+      $this->$day = implode(',', $byDay);
+      $this->$offset = is_array($bySetPosition) && count($bySetPosition)
+        ? $bySetPosition[0]
+        : 0;
+
+      return true;
+    }
+
+    return false;
   }
 
   /**
-   * @param Rule|RecurrenceRule $rule
+   * @return RecurrenceRule
    * @throws Throwable
    */
-  private function putRule($rule) {
+  private function createRecurrenceRule() : RecurrenceRule {
+    $rule = new RecurrenceRule();
     $rule
       ->setFreq(strtoupper($this->freq))
       ->setInterval($this->interval);
@@ -476,7 +464,8 @@ class CalendarEventRRule extends Model
           $rule->setByMonthDay($this->monthlyDate);
         }
       } else {
-        $this->putByDay($rule, $this->monthlyDay, $this->monthlyDayOffset);
+        $rule->setByDay($this->monthlyDay);
+        $rule->setBySetPos($this->monthlyDayOffset);
       }
     } elseif ($this->freq == 'yearly') {
       if (count($this->yearlyMonths) > 0) {
@@ -484,37 +473,31 @@ class CalendarEventRRule extends Model
       }
 
       if ($this->yearlyAt) {
-        $this->putByDay($rule, $this->yearlyDay, $this->yearlyDayOffset);
+        $rule->setByDay($this->yearlyDay);
+        $rule->setBySetPos($this->yearlyDayOffset);
       }
     }
 
     if ($this->until == 'count') {
       $rule->setCount($this->untilCount);
     } elseif ($this->until == 'date') {
-      $rule->setUntil($this->untilDate);
+      $until = clone $this->untilDate;
+      $until->setTime(23, 59, 59);
+      $until->setTimezone(new \DateTimeZone('UTC'));
+      $rule->setUntil($until);
     }
+
+    return $rule;
   }
 
   /**
-   * @param Rule $rule
-   * @param string $day
-   * @param string $offset
-   * @return true
+   * @param array $options
+   * @return array
    */
-  private function readByDay($rule, $day, $offset) {
-    $byDay = $rule->getByDay();
-    $bySetPosition = $rule->getBySetPosition();
-
-    if (is_array($byDay) && count($byDay) > 0) {
-      $this->$day = implode(',', $byDay);
-      $this->$offset = is_array($bySetPosition) && count($bySetPosition)
-        ? $bySetPosition[0]
-        : 0;
-
-      return true;
-    }
-
-    return false;
+  private function getValues($options) {
+    return array_map(function($option) {
+      return $option['value'];
+    }, $options);
   }
 
 
@@ -522,34 +505,34 @@ class CalendarEventRRule extends Model
   // --------------
 
   /**
-   * @param string|null $rrule
-   * @return CalendarEventRRule
+   * @param string|null $raw
+   * @return SimpleRecurrenceRule
    */
-  static public function fromRRule(string $rrule = null) {
-    $model = new CalendarEventRRule();
-    if (is_null($rrule) || empty($rrule)) {
+  static public function fromString(string $raw = null) {
+    $model = new SimpleRecurrenceRule();
+    if (is_null($raw) || empty($raw)) {
       return $model;
     }
 
     try {
-      $rule = new Rule($rrule);
-      $model->freq = strtolower($rule->getFreqAsText());
+      $rule = new RecurrenceRule($raw);
+      $model->freq = strtolower($rule->getFreq());
       $model->interval = $rule->getInterval();
 
       if ($model->freq == 'weekly') {
-        $model->weeklyDay = $rule->getByDay();
+        $model->weeklyDay = $rule->getByDayArray();
       } elseif ($model->freq == 'monthly') {
-        if ($model->readByDay($rule, 'monthlyDay', 'monthlyDayOffset')) {
+        if ($model->applyByDay($rule, 'monthlyDay', 'monthlyDayOffset')) {
           $model->monthlyMode = 'at';
         } else {
-          $monthDate = $rule->getByMonthDay();
+          $monthDate = $rule->getByMonthDayArray();
           $model->monthlyMode = 'every';
           $model->monthlyDate = is_array($monthDate) ? $monthDate : [];
         }
       } elseif ($model->freq == 'yearly') {
-        $months = $rule->getByMonth();
+        $months = $rule->getByMonthArray();
         $model->yearlyMonths = is_array($months) ? $months : [];
-        if ($model->readByDay($rule, 'yearlyDay', 'yearlyDayOffset')) {
+        if ($model->applyByDay($rule, 'yearlyDay', 'yearlyDayOffset')) {
           $model->yearlyAt = true;
         }
       }
@@ -560,6 +543,8 @@ class CalendarEventRRule extends Model
         $model->until = 'count';
         $model->untilCount = $count;
       } elseif (!is_null($until)) {
+        $until = new DateTime($until->format('c'));
+        $until->setTimezone(new \DateTimeZone(Craft::$app->getTimeZone()));
         $model->until = 'date';
         $model->untilDate = $until;
       }

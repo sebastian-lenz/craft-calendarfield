@@ -2,16 +2,24 @@
 
 namespace lenz\calendarfield;
 
+use Craft;
 use craft\events\RegisterComponentTypesEvent;
+use craft\events\RegisterCpNavItemsEvent;
+use craft\events\RegisterUrlRulesEvent;
 use craft\services\Fields;
+use craft\web\twig\variables\Cp;
+use craft\web\UrlManager;
 use Eluceo\iCal\Component\Event as ExportModel;
 use lenz\calendarfield\events\ExportEvent;
 use lenz\calendarfield\fields\CalendarEventField;
 use lenz\calendarfield\models\CalendarEvent;
+use lenz\calendarfield\services\calendar\Calendar;
 use yii\base\Event;
 
 /**
  * Class Plugin
+ *
+ * @property Calendar $calendar
  */
 class Plugin extends \craft\base\Plugin
 {
@@ -32,18 +40,48 @@ class Plugin extends \craft\base\Plugin
   public function init() {
     parent::init();
 
-    Event::on(
-      Fields::class,
-      Fields::EVENT_REGISTER_FIELD_TYPES,
-      [$this, 'onRegisterFieldTypes']
-    );
-  }
+    $this->setComponents([
+      'calendar' => Calendar::class,
+    ]);
 
-  /**
-   * @param RegisterComponentTypesEvent $event
-   */
-  public function onRegisterFieldTypes(RegisterComponentTypesEvent $event) {
-    $event->types[] = CalendarEventField::class;
+    Event::on(
+      Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES,
+      function(RegisterComponentTypesEvent $event) {
+        $event->types[] = CalendarEventField::class;
+      }
+    );
+
+    Event::on(
+      Cp::class, Cp::EVENT_REGISTER_CP_NAV_ITEMS,
+      function(RegisterCpNavItemsEvent $event) {
+        $navItem = [
+          'url'      => 'calendar',
+          'label'    => Craft::t('app', 'Calendar'),
+          'fontIcon' => 'date'
+        ];
+
+        foreach ($event->navItems as $index => $item) {
+          if ($item['url'] != 'entries') continue;
+          array_splice($event->navItems, $index + 1, 0, [$navItem]);
+          return;
+        }
+
+        $event->navItems[] = $navItem;
+      }
+    );
+
+    Event::on(
+      UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES,
+      function(RegisterUrlRulesEvent $event) {
+        $event->rules['calendar'] = 'calendarfield/calendar/index';
+      }
+    );
+
+    Craft::$app->getView()->hook('cp.entries.edit', function(array &$context) {
+      if (isset($_GET['redirect']) && $_GET['redirect'] == 'calendar') {
+        $context['redirectUrl'] = 'calendar';
+      }
+    });
   }
 
   /**

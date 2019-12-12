@@ -132,7 +132,7 @@
 
           {% if field.enableRRule %}
             {% include "calendarfield/_input-rrule.twig" with {
-              value: value.rruleModel,
+              value: value.simpleRecurrenceRule,
             } %}
           {% endif %}
         </div>
