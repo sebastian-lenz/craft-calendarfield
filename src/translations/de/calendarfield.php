@@ -11,6 +11,7 @@ return [
   'Confirmed' => 'Bestätigt',
   'Description' => 'Beschreibung',
   'End' => 'Ende',
+  'from {date}' => 'ab {date}',
   'Geo location' => 'Kartenangabe',
   'Calendar field' => 'Kalender Feld',
   'Location' => 'Ort',
@@ -18,5 +19,6 @@ return [
   'Status' => 'Status',
   'Tentative' => 'Vorläufig',
   'The end time must be after the start time.' => 'Die Endzeit muss nach der Startzeit liegen.',
+  'till {date}' => 'bis {date}',
   'Title' => 'Titel',
 ];

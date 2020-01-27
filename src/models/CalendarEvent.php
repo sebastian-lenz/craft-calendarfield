@@ -179,6 +179,18 @@ class CalendarEvent extends ForeignFieldModel
     $dateEnd   = $this->dateEnd;
     $dateStart = $this->dateStart;
 
+    if (is_null($dateEnd) && is_null($dateStart)) {
+      return '';
+    } elseif (is_null($dateStart)) {
+      return Craft::t('calendarfield', 'till {date}', [
+        'date' => $this->getDateEndFormatted(),
+      ]);
+    } elseif (is_null($dateEnd)) {
+      return Craft::t('calendarfield', 'from {date}', [
+        'date' => $this->getDateStartFormatted(),
+      ]);
+    }
+
     if ($dateStart->getTimestamp() == $dateEnd->getTimestamp()) {
       return $this->getDateStartFormatted();
     }
