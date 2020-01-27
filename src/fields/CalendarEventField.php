@@ -179,12 +179,11 @@ class CalendarEventField
    * @throws Exception
    */
   public function isAttributePropagated(string $attribute) {
-    if ($this->translationMethod != Field::TRANSLATION_METHOD_NONE) {
+    if (
+      $this->translationMethod != Field::TRANSLATION_METHOD_NONE ||
+      !array_key_exists($attribute, self::ATTRIBUTES_WITH_SETTINGS)
+    ) {
       return true;
-    }
-
-    if (!array_key_exists($attribute, self::ATTRIBUTES_WITH_SETTINGS)) {
-      return false;
     }
 
     $settings = $this->getAttributeSettings($attribute);
