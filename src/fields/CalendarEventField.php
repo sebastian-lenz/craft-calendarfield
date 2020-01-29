@@ -104,7 +104,7 @@ class CalendarEventField
       );
 
       foreach ($value as $fieldName) {
-        $this->fieldSettings[$fieldName]['translatable'] = true;
+        $this->attributeSettings[$fieldName]['translatable'] = true;
       }
     } else {
       parent::__set($name, $value);
