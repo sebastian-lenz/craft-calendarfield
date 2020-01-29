@@ -26,7 +26,7 @@ class Plugin extends \craft\base\Plugin
   /**
    * @inheritdoc
    */
-  public $schemaVersion = '1.0.0';
+  public $schemaVersion = '1.0.1';
 
   /**
    * Event thrown when an ics event is exported.
