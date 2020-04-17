@@ -47,7 +47,7 @@
         label: 'Title'|t('calendarfield'),
         maxlength: 255,
         name: 'title',
-        translatable: field.isAttributePropagated('title'),
+        translatable: not field.isAttributePropagated('title'),
         value: value.title,
       }) -}}
     {% endif -%}
@@ -59,7 +59,7 @@
         label: 'Description'|t('calendarfield'),
         name: 'description',
         rows: 3,
-        translatable: field.isAttributePropagated('description'),
+        translatable: not field.isAttributePropagated('description'),
         value: value.description,
       }) -}}
     {% endif -%}
@@ -71,7 +71,7 @@
         label: 'Location'|t('calendarfield'),
         name: 'location',
         rows: 3,
-        translatable: field.isAttributePropagated('location'),
+        translatable: not field.isAttributePropagated('location'),
         value: value.location,
       }) -}}
 
