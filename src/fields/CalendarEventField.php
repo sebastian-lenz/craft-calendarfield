@@ -179,11 +179,11 @@ class CalendarEventField
    * @throws Exception
    */
   public function isAttributePropagated(string $attribute) {
-    if (
-      $this->translationMethod != Field::TRANSLATION_METHOD_NONE ||
-      !in_array($attribute, self::ATTRIBUTES_WITH_SETTINGS)
-    ) {
-      return false;
+    // If the attribute has now custom settings, always propagate it.
+    // Craft checks the translation method on its own and only
+    // class this if we should propagate
+    if (!in_array($attribute, self::ATTRIBUTES_WITH_SETTINGS)) {
+      return true;
     }
 
     $settings = $this->getAttributeSettings($attribute);
