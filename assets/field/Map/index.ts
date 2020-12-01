@@ -70,9 +70,9 @@ export default class Map {
       const map = L.map(plugin);
       map.setView(this.getLatLng(), this.initialZoom);
 
-      L.tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.png', {
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution:
-          '<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use">Wikimedia</a>',
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         minZoom: 1,
         maxZoom: 19,
       }).addTo(map);

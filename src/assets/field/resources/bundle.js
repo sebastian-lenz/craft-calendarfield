@@ -26,8 +26,8 @@ const{anchor:l,defaultTimeDelta:r,endClass:d,parseTime:o,startClass:h,updateTime
 let c=o(s),g=o(i)
 if(c&&g)if("start"==l&&n(t,h))g=this._setTimeAndReturn(i,new Date(c.getTime()+this.timeDelta)),this._doMidnightRollover(c,g)
 else if("end"==l&&n(t,d))c=this._setTimeAndReturn(s,new Date(g.getTime()-this.timeDelta)),this._doMidnightRollover(c,g)
-else{var m,p
-if(this._doMidnightRollover(c,g),a&&e&&(m=this.settings.parseDate(a),p=this.settings.parseDate(e)),m==p&&g<c){const e=n(t,d)?i:s,a=n(t,h)?i:s,l=o(e)
+else{var p,m
+if(this._doMidnightRollover(c,g),a&&e&&(p=this.settings.parseDate(a),m=this.settings.parseDate(e)),p==m&&g<c){const e=n(t,d)?i:s,a=n(t,h)?i:s,l=o(e)
 this.timeDelta=0,u(a,l)}else this.timeDelta=g.getTime()-c.getTime()}else null!==r?(this.timeDelta=r,c?(g=this._setTimeAndReturn(i,new Date(c.getTime()+r)),this._doMidnightRollover(c,g)):g&&(c=this._setTimeAndReturn(s,new Date(g.getTime()-r)),this._doMidnightRollover(c,g))):this.timeDelta=0}_setTimeAndReturn(t,e){return this.settings.updateTime(t,e),this.settings.parseTime(t)||e}_doMidnightRollover(t,e){const{dateDelta:i,endDateInput:s,startDateInput:n,timeDelta:l}=this
 if(!n||!s)return
 const{anchor:r,parseDate:d,updateDate:o}=this.settings,h=d(s),u=d(n),c=e.getTime()-t.getTime(),g=e<t?a:-1*a
@@ -55,7 +55,7 @@ const i=parseFloat(t.initialLatitude),a=parseFloat(t.initialLongitude)
 isNaN(i)||isNaN(a)||(this.initialLatitude=i,this.initialLongitude=a),isNaN(this.latitude)||isNaN(this.latitude)||(this.$enabled.prop("checked",!0),this.updateState())
 var s=this
 this.$enabled.parent().on("click",(function(){s.updateState()}))}createMap(){if(!this.map){const t=this.$container.find(".calendarfield--mapPlugin").get(0),e=o.map(t)
-e.setView(this.getLatLng(),this.initialZoom),o.tileLayer("https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.png",{attribution:'<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use">Wikimedia</a>',minZoom:1,maxZoom:19}).addTo(e)
+e.setView(this.getLatLng(),this.initialZoom),o.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',minZoom:1,maxZoom:19}).addTo(e)
 const i=o.marker(this.getLatLng(),{draggable:!this.disabled}).addTo(e)
 i.on("dragend",this.onMarkerDragEnd),o.Control.geocoder({defaultMarkGeocode:!1}).on("markgeocode",this.onMarkGeoCode).addTo(e),Garnish.$win.on("resize",(function(){e.invalidateSize()})),this.map=e,this.marker=i}}getLatLng(){return[isNaN(this.latitude)?this.initialLatitude:this.latitude,isNaN(this.longitude)?this.initialLongitude:this.longitude]}isEnabled(){return this.$enabled.prop("checked")}updateState(){if(this.isEnabled()){const t=this.getLatLng()
 this.$latitude.val(t[0]),this.$longitude.val(t[1]),this.$viewport.addClass("isVisible"),this.createMap()}else this.$latitude.val(""),this.$longitude.val(""),this.$viewport.removeClass("isVisible")}}(d=window).CalendarField=Object.assign(Object.assign({},d.CalendarField||{}),{Field:r,Map:h})}])
