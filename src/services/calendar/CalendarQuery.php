@@ -109,11 +109,19 @@ class CalendarQuery extends EntryQuery
 
     // Join the content and elements_sites tables against our field table
     foreach ($this->subQuery->join as $index => &$join) {
-      if (preg_match('/(content|elements_sites)$/', $join[1], $match)) {
+      $joinTable = $join[1];
+      if (is_array($joinTable)) {
+        $joinAlias = array_key_first($joinTable);
+        $joinTable = $joinTable[$joinAlias];
+      } else {
+        $joinAlias = $joinTable;
+      }
+
+      if (preg_match('/(content|elements_sites)(?:}})$/', $joinTable, $match)) {
         $join[2] = [
           'and',
-          "[[$match[1].elementId]] = [[calendarfield.rootId]]",
-          "[[$match[1].siteId]] = [[calendarfield.siteId]]"
+          "[[$joinAlias.elementId]] = [[calendarfield.rootId]]",
+          "[[$joinAlias.siteId]] = [[calendarfield.siteId]]"
         ];
       }
     }
