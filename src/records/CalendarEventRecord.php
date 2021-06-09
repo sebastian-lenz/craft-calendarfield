@@ -6,6 +6,7 @@ use craft\db\Migration;
 use craft\db\Table;
 use craft\helpers\DateTimeHelper;
 use DateTime;
+use DateTimeZone;
 use Exception;
 use lenz\craft\utils\foreignField\ForeignFieldRecord;
 
@@ -41,7 +42,7 @@ class CalendarEventRecord extends ForeignFieldRecord
   /**
    * @inheritDoc
    */
-  public function rules() {
+  public function rules(): array {
     return [
       [['title', 'description', 'location', 'rrule'], 'string'],
       [['dateAllDay'], 'boolean'],
@@ -68,9 +69,11 @@ class CalendarEventRecord extends ForeignFieldRecord
   /**
    * @param string $attribute
    * @throws Exception
+   * @noinspection PhpUnused (Validator)
    */
-  public function validateDateTime($attribute) {
+  public function validateDateTime(string $attribute) {
     $value = $this->$attribute;
+
     if (!is_null($value)) {
       $value = DateTimeHelper::toDateTime($value);
       if (!($value instanceof DateTime)) {
@@ -109,13 +112,48 @@ class CalendarEventRecord extends ForeignFieldRecord
     $migration->createIndex(null, self::tableName(), ['dateTill']);
     $migration->createIndex(null, self::tableName(), ['rootId']);
 
-    $migration->addForeignKey(null, self::tableName(), ['rootId'], Table::ELEMENTS, ['id'], 'CASCADE', null);
+    $migration->addForeignKey(null, self::tableName(), ['rootId'], Table::ELEMENTS, ['id'], 'CASCADE');
+  }
+
+  /**
+   * @param string $column
+   * @return DateTime|false
+   * @throws Exception
+   */
+  static public function getNearestDate(string $column) {
+    $now = (new DateTime('now', new DateTimeZone('UTC')))
+      ->format('Y-m-d H:i:s');
+
+    $record = CalendarEventRecord::find()
+      ->where(['>', $column, $now])
+      ->orderBy($column)
+      ->select([$column])
+      ->one();
+
+    return is_null($record)
+      ? false
+      : DateTimeHelper::toDateTime($record[$column]);
+  }
+
+  /**
+   * @return DateTime|false
+   * @throws Exception
+   */
+  static public function getNearestEdge() {
+    $dateStart = self::getNearestDate('dateStart');
+    $dateEnd = self::getNearestDate('dateEnd');
+
+    if ($dateStart && $dateEnd) {
+      return $dateStart->getTimestamp() < $dateEnd->getTimestamp() ? $dateStart : $dateEnd;
+    } else {
+      return $dateStart ?: $dateEnd;
+    }
   }
 
   /**
    * @inheritDoc
    */
-  static public function tableName() {
+  static public function tableName(): string {
     return '{{%lenz_calendarfield}}';
   }
 }

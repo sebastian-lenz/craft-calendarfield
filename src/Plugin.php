@@ -13,6 +13,7 @@ use Eluceo\iCal\Component\Event as ExportModel;
 use lenz\calendarfield\events\ExportEvent;
 use lenz\calendarfield\fields\CalendarEventField;
 use lenz\calendarfield\models\CalendarEvent;
+use lenz\calendarfield\records\CalendarEventRecord;
 use lenz\calendarfield\services\calendar\Calendar;
 use yii\base\Event;
 
@@ -77,6 +78,16 @@ class Plugin extends \craft\base\Plugin
       }
     );
 
+    Event::on(
+      'lenz\craft\essentials\services\frontendCache\FrontendCacheService', 'defaultCacheDuration',
+      function($event) {
+        $edge = CalendarEventRecord::getNearestEdge();
+        if ($edge) {
+          $event->setMinDate($edge);
+        }
+      }
+    );
+
     Craft::$app->getView()->hook('cp.entries.edit', function(array &$context) {
       if (isset($_GET['redirect']) && $_GET['redirect'] == 'calendar') {
         $context['redirectUrl'] = 'calendar';
@@ -89,7 +100,7 @@ class Plugin extends \craft\base\Plugin
    * @param ExportModel $model
    * @return ExportModel
    */
-  public function triggerExportEvent(CalendarEvent $calendarEvent, ExportModel $model) {
+  public function triggerExportEvent(CalendarEvent $calendarEvent, ExportModel $model): ExportModel {
     if (!$this->hasEventHandlers(self::EXPORT_EVENT)) {
       return $model;
     }
