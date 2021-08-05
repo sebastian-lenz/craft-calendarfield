@@ -1,27 +1,25 @@
 import {
   Calendar,
-  OptionsInput,
+  CalendarOptions,
   EventApi,
-  View,
-  Duration,
+  EventSourceInput,
 } from '@fullcalendar/core';
 
 import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
 import luxonPlugin from '@fullcalendar/luxon';
-import { EventSourceInput } from '@fullcalendar/core/structs/event-source';
 
 import SiteMenu from './SiteMenu';
 
 import './index.styl';
-import '@fullcalendar/core/main.css';
-import '@fullcalendar/daygrid/main.css';
 
 const dateStorageKey = 'CalendarField.Calendar.defaultDate';
 
 export interface ApplicationOptions {
   eventsUrl: string;
-  input: OptionsInput;
+  input: CalendarOptions;
   sources: Array<any>;
   updateUrl: string;
 }
@@ -63,14 +61,25 @@ export default class Application {
     const { element } = this;
     const calendar = new Calendar(element, {
       ...input,
-      datesRender: this.handleDatesRender,
-      defaultDate: this.getDefaultDate(),
+      datesSet: this.handleDatesRender,
       editable: true,
       eventClick: this.handleEventClick,
       eventDrop: this.handleEventChange,
       eventResize: this.handleEventChange,
-      height: 'parent',
-      plugins: [dayGridPlugin, interactionPlugin, luxonPlugin],
+      initialDate: this.getDefaultDate(),
+      initialView: 'dayGridMonth',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,listWeek',
+      },
+      plugins: [
+        dayGridPlugin,
+        interactionPlugin,
+        luxonPlugin,
+        timeGridPlugin,
+        listPlugin,
+      ],
     });
 
     calendar.render();
@@ -129,7 +138,7 @@ export default class Application {
     Craft.postActionRequest(
       'calendarfield/calendar/update-event',
       { eventId, attributes },
-      result => {
+      (result) => {
         if (result === null) {
           revert();
         } else {
