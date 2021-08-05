@@ -263,7 +263,7 @@ class CalendarEventField
 
     $model->normalizeTimezone();
 
-    $root = $model->getRoot();
+    $root = $model->getRoot($element);
     $attributes = static::recordModelAttributes();
     ArrayHelper::removeValue($attributes, 'uid');
 

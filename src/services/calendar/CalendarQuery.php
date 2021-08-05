@@ -3,6 +3,7 @@
 namespace lenz\calendarfield\services\calendar;
 
 use craft\db\Query;
+use craft\db\Table;
 use craft\elements\db\EntryQuery;
 use craft\elements\Entry;
 use DateTime;
@@ -97,8 +98,13 @@ class CalendarQuery extends EntryQuery
       ->from(CalendarEventRecord::tableName() . ' calendarfield')
       ->select('calendarfield.id')
       ->groupBy('calendarfield.id')
+      ->innerJoin(
+        ['calendarfieldOwner' => Table::ELEMENTS],
+        '[[calendarfieldOwner.id]] = [[calendarfield.elementId]]'
+      )
       ->andWhere([
         'and',
+        ['calendarfieldOwner.dateDeleted' => null],
         ['<', 'dateStart', $this->eventBefore->format('c')],
         [
           'or',
