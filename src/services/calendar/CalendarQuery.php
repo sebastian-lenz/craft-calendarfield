@@ -181,6 +181,7 @@ class CalendarQuery extends EntryQuery
     $roots = Entry::findAll([
       'id'     => $rootIds,
       'siteId' => $siteId,
+      'with'   => $this->with,
     ]);
 
     return array_filter($result, function(Recurrence $recurrence) use ($roots) {

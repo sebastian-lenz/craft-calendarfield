@@ -5,14 +5,25 @@ namespace lenz\calendarfield\models;
 use craft\base\ElementInterface;
 use craft\helpers\UrlHelper;
 use DateTime;
+use DateTimeZone;
 use Exception;
-use lenz\calendarfield\records\CalendarEventRecord;
 use RRule\RRule;
+use yii\base\BaseObject;
 
 /**
  * Class Recurrence
+ *
+ * @property bool $dateAllDay
+ * @property DateTime $dateEnd
+ * @property DateTime $dateStart
+ * @property int $eventId
+ * @property bool $isEditable
+ * @property ElementInterface|null $root
+ * @property string $rootId
+ * @property string $siteId
+ * @property string $title
  */
-class Recurrence
+class Recurrence extends BaseObject
 {
   /**
    * @var DateTime
@@ -42,57 +53,80 @@ class Recurrence
   /**
    * Recurrence constructor.
    *
-   * @param CalendarEventRecord $record
+   * @param array $record
    * @param DateTime $dateStart
    * @param DateTime $dateEnd
    */
   public function __construct(array $record, DateTime $dateStart, DateTime $dateEnd) {
+    parent::__construct();
+
     $this->_record    = $record;
     $this->_dateStart = $dateStart;
     $this->_dateEnd   = $dateEnd;
   }
 
   /**
+   * @return bool
+   * @noinspection PhpUnused
+   */
+  public function getDateAllDay(): bool {
+    return !!$this->_record['dateAllDay'];
+  }
+
+  /**
+   * @return DateTime
+   * @noinspection PhpUnused
+   */
+  public function getDateEnd(): DateTime {
+    return $this->_dateEnd;
+  }
+
+  /**
+   * @return DateTime
+   */
+  public function getDateStart(): DateTime {
+    return $this->_dateStart;
+  }
+
+  /**
    * @return int
    */
-  public function getEventId() {
+  public function getEventId(): int {
     return $this->_record['id'];
   }
 
   /**
    * @return bool
    */
-  public function getIsEditable() {
-    return is_null($this->_root)
-      ? false
-      : $this->_root->getIsEditable();
+  public function getIsEditable(): bool {
+    return !is_null($this->_root) && $this->_root->getIsEditable();
   }
 
   /**
    * @return ElementInterface|null
    */
-  public function getRoot() {
+  public function getRoot(): ?ElementInterface {
     return $this->_root;
   }
 
   /**
    * @return string
    */
-  public function getRootId() {
+  public function getRootId(): string {
     return $this->_record['rootId'];
   }
 
   /**
    * @return string
    */
-  public function getSiteId() {
+  public function getSiteId(): string {
     return $this->_record['siteId'];
   }
 
   /**
    * @return string
    */
-  public function getTitle() {
+  public function getTitle(): string {
     $title = $this->_record['title'];
     return empty($title) && !is_null($this->_root)
       ? (string)$this->_root
@@ -110,7 +144,7 @@ class Recurrence
    * @return array
    * @throws Exception
    */
-  public function toFullCalendarEvent() {
+  public function toFullCalendarEvent(): array {
     return [
       'allDay'        => !!$this->_record['dateAllDay'],
       'editable'      => $this->getIsEditable(),
@@ -129,7 +163,7 @@ class Recurrence
   /**
    * @return array
    */
-  protected function getExtendedProps() {
+  protected function getExtendedProps(): array {
     $editUrl = null;
     if (!is_null($this->_root) && $this->_root->getIsEditable()) {
       $editUrl = UrlHelper::url($this->_root->getCpEditUrl(), [
@@ -153,7 +187,7 @@ class Recurrence
    * @param DateTime $before
    * @return Recurrence[]
    */
-  static public function createForModel(CalendarEvent $model, $after, $before) {
+  static public function createForModel(CalendarEvent $model, DateTime $after, DateTime $before): array {
     $recurrences = self::createForArray(
       $model->getAttributes(),
       $after,
@@ -173,9 +207,9 @@ class Recurrence
    * @param DateTime $before
    * @return Recurrence[]
    */
-  static public function createForArray(array $row, $after, $before) {
+  static public function createForArray(array $row, DateTime $after, DateTime $before): array {
     try {
-      $timezone  = $row['dateAllDay'] ? null : new \DateTimeZone('UTC');
+      $timezone  = $row['dateAllDay'] ? null : new DateTimeZone('UTC');
       $dateStart = new DateTime($row['dateStart'], $timezone);
       $dateEnd   = new DateTime($row['dateEnd'], $timezone);
     } catch (Exception $exception) {

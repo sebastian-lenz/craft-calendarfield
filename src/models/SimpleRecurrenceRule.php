@@ -5,7 +5,7 @@ namespace lenz\calendarfield\models;
 use Craft;
 use craft\base\Model;
 use DateTime;
-use Eluceo\iCal\Component\Timezone;
+use DateTimeZone;
 use Throwable;
 
 /**
@@ -112,7 +112,7 @@ class SimpleRecurrenceRule extends Model
   /**
    * @return array
    */
-  public function getAllFrequencies() {
+  public function getAllFrequencies(): array {
     return [
       [
         'value' => 'none',
@@ -135,8 +135,9 @@ class SimpleRecurrenceRule extends Model
 
   /**
    * @return array
+   * @noinspection PhpUnused ApiMethod
    */
-  public function getAllMonthlyModes() {
+  public function getAllMonthlyModes(): array {
     return [
       [
         'value' => 'every',
@@ -151,7 +152,7 @@ class SimpleRecurrenceRule extends Model
   /**
    * @return array
    */
-  public function getAllMonths() {
+  public function getAllMonths(): array {
     return [
       [
         'value' => 1,
@@ -195,8 +196,9 @@ class SimpleRecurrenceRule extends Model
 
   /**
    * @return array
+   * @noinspection PhpUnused ApiMethod
    */
-  public function getAllMonthsShort() {
+  public function getAllMonthsShort(): array {
     return array_map(function($option) {
       $option['label'] = substr($option['label'], 0, 3);
       return $option;
@@ -206,7 +208,7 @@ class SimpleRecurrenceRule extends Model
   /**
    * @return array
    */
-  public function getAllOffsets() {
+  public function getAllOffsets(): array {
     return [
       [
         'value' => 1,
@@ -230,7 +232,7 @@ class SimpleRecurrenceRule extends Model
   /**
    * @return array
    */
-  public function getAllUntils() {
+  public function getAllUntils(): array {
     return [
       [
         'value' => 'never',
@@ -248,7 +250,7 @@ class SimpleRecurrenceRule extends Model
   /**
    * @return array
    */
-  public function getAllWeekdays() {
+  public function getAllWeekdays(): array {
     $weekdays = [
       [
         'value' => 'SU',
@@ -287,8 +289,9 @@ class SimpleRecurrenceRule extends Model
 
   /**
    * @return array
+   * @noinspection PhpUnused ApiMethod
    */
-  public function getAllWeekdaysShort() {
+  public function getAllWeekdaysShort(): array {
     return array_map(function($option) {
       $option['label'] = substr($option['label'], 0, 2);
       return $option;
@@ -298,7 +301,7 @@ class SimpleRecurrenceRule extends Model
   /**
    * @return array
    */
-  public function getAllWeekdaysAndGroups() {
+  public function getAllWeekdaysAndGroups(): array {
     $weekdays = $this->getAllWeekdays();
     return array_merge($weekdays, [
       [
@@ -317,7 +320,7 @@ class SimpleRecurrenceRule extends Model
   /**
    * @return array
    */
-  public function rules() {
+  public function rules(): array {
     $rules = [
       ['yearlyAt', 'boolean'],
 
@@ -374,7 +377,7 @@ class SimpleRecurrenceRule extends Model
   /**
    * @return RecurrenceRule|null
    */
-  public function toRecurrenceRule() {
+  public function toRecurrenceRule(): ?RecurrenceRule {
     try {
       return $this->createRecurrenceRule();
     } catch (Throwable $error) {
@@ -387,8 +390,9 @@ class SimpleRecurrenceRule extends Model
   /**
    * @param string $attribute
    * @param array $params
+   * @noinspection PhpUnused Validator
    */
-  public function validateArrayOf($attribute, $params) {
+  public function validateArrayOf(string $attribute, array $params) {
     $items = $this->$attribute;
     $range = $params['range'];
 
@@ -410,8 +414,9 @@ class SimpleRecurrenceRule extends Model
 
   /**
    * @param string $attribute
+   * @noinspection PhpUnused Validator
    */
-  public function validateDateTime($attribute) {
+  public function validateDateTime(string $attribute) {
     $value = $this->$attribute;
     if ($value !== false && !($value instanceof DateTime)) {
       $this->addError($attribute, '{attribute} must be a date / time.');
@@ -426,9 +431,9 @@ class SimpleRecurrenceRule extends Model
    * @param RecurrenceRule $rule
    * @param string $day
    * @param string $offset
-   * @return true
+   * @return bool
    */
-  private function applyByDay(RecurrenceRule $rule, string $day, string $offset) {
+  private function applyByDay(RecurrenceRule $rule, string $day, string $offset): bool {
     $byDay = $rule->getByDayArray();
     $bySetPosition = $rule->getBySetPos();
 
@@ -483,7 +488,7 @@ class SimpleRecurrenceRule extends Model
     } elseif ($this->until == 'date') {
       $until = clone $this->untilDate;
       $until->setTime(23, 59, 59);
-      $until->setTimezone(new \DateTimeZone('UTC'));
+      $until->setTimezone(new DateTimeZone('UTC'));
       $rule->setUntil($until);
     }
 
@@ -494,7 +499,7 @@ class SimpleRecurrenceRule extends Model
    * @param array $options
    * @return array
    */
-  private function getValues($options) {
+  private function getValues(array $options): array {
     return array_map(function($option) {
       return $option['value'];
     }, $options);
@@ -508,9 +513,9 @@ class SimpleRecurrenceRule extends Model
    * @param string|null $raw
    * @return SimpleRecurrenceRule
    */
-  static public function fromString(string $raw = null) {
+  static public function fromString(string $raw = null): SimpleRecurrenceRule {
     $model = new SimpleRecurrenceRule();
-    if (is_null($raw) || empty($raw)) {
+    if (empty($raw)) {
       return $model;
     }
 
@@ -544,7 +549,7 @@ class SimpleRecurrenceRule extends Model
         $model->untilCount = $count;
       } elseif (!is_null($until)) {
         $until = new DateTime($until->format('c'));
-        $until->setTimezone(new \DateTimeZone(Craft::$app->getTimeZone()));
+        $until->setTimezone(new DateTimeZone(Craft::$app->getTimeZone()));
         $model->until = 'date';
         $model->untilDate = $until;
       }

@@ -19,22 +19,23 @@ class RecurrenceRule extends RecurrenceRuleBase
    * @throws Exception
    */
   public function __construct(string $rule = null) {
-    if (!is_null($rule) && !empty($rule)) {
+    if (!empty($rule)) {
       $this->applyString($rule);
     }
   }
 
   /**
    * @return string|null
+   * @noinspection PhpUnused ApiMethod
    */
-  public function getByDay() {
+  public function getByDay(): ?string {
     return $this->byDay;
   }
 
   /**
    * @return array|null
    */
-  public function getByDayArray() {
+  public function getByDayArray(): ?array {
     return is_null($this->byDay)
       ? null
       : explode(',', $this->byDay);
@@ -42,12 +43,16 @@ class RecurrenceRule extends RecurrenceRuleBase
 
   /**
    * @return string|null
+   * @noinspection PhpUnused ApiMethod
    */
-  public function getByMonth() {
+  public function getByMonth(): ?string {
     return $this->byMonth;
   }
 
-  public function getByMonthArray() {
+  /**
+   * @return string[]|null
+   */
+  public function getByMonthArray(): ?array {
     return is_null($this->byMonth)
       ? null
       : explode(',', $this->byMonth);
@@ -55,15 +60,16 @@ class RecurrenceRule extends RecurrenceRuleBase
 
   /**
    * @return string|null
+   * @noinspection PhpUnused ApiMethod
    */
-  public function getByMonthDay() {
+  public function getByMonthDay(): ?string {
     return $this->byMonthDay;
   }
 
   /**
    * @return array|null
    */
-  public function getByMonthDayArray() {
+  public function getByMonthDayArray(): ?array {
     return is_null($this->byMonthDay)
       ? null
       : explode(',', $this->byMonthDay);
@@ -72,7 +78,7 @@ class RecurrenceRule extends RecurrenceRuleBase
   /**
    * @return array|null
    */
-  public function getBySetPos() {
+  public function getBySetPos(): ?array {
     return $this->bySetPos;
   }
 
@@ -81,7 +87,7 @@ class RecurrenceRule extends RecurrenceRuleBase
    * @param array|null|string $day
    * @return $this
    */
-  public function setByDay($day) {
+  public function setByDay($day): RecurrenceRule {
     $this->byDay = self::toStringList($day, function($value) {
       return !preg_match('/^(-?\d+)?(SU|MO|TU|WE|TH|FR|SA)$/', $value);
     });
@@ -92,11 +98,11 @@ class RecurrenceRule extends RecurrenceRuleBase
 
   /**
    * @inheritDoc
-   * @param array|int|null|string $hour
+   * @param array|int|null|string $value
    * @return $this
    */
-  public function setByHour($hour) {
-    $this->byMinute = self::toIntegerList($hour, function($value) {
+  public function setByHour($value): RecurrenceRule {
+    $this->byMinute = self::toIntegerList($value, function($value) {
       return (!is_integer($value) || $value < 0 || $value > 23);
     });
 
@@ -106,11 +112,11 @@ class RecurrenceRule extends RecurrenceRuleBase
 
   /**
    * @inheritDoc
-   * @param array|int|null|string $minute
+   * @param array|int|null|string $value
    * @return $this
    */
-  public function setByMinute($minute) {
-    $this->byMinute = self::toIntegerList($minute, function($value) {
+  public function setByMinute($value): RecurrenceRule {
+    $this->byMinute = self::toIntegerList($value, function($value) {
       return (!is_integer($value) || $value < 0 || $value > 59);
     });
 
@@ -123,7 +129,7 @@ class RecurrenceRule extends RecurrenceRuleBase
    * @param array|int|null|string $month
    * @return $this
    */
-  public function setByMonth($month) {
+  public function setByMonth($month): RecurrenceRule {
     $this->byMonth = self::toIntegerList($month, function($value) {
       return (!is_integer($value) || $value <= 0 || $value > 12);
     });
@@ -134,11 +140,11 @@ class RecurrenceRule extends RecurrenceRuleBase
 
   /**
    * @inheritDoc
-   * @param array|int|null|string $monthDay
+   * @param array|int|null|string $day
    * @return $this
    */
-  public function setByMonthDay($monthDay) {
-    $this->byMonthDay = self::toIntegerList($monthDay, function($value) {
+  public function setByMonthDay($day): RecurrenceRule {
+    $this->byMonthDay = self::toIntegerList($day, function($value) {
       return (!is_integer($value) || $value > 31 || $value < -31 || $value === 0);
     });
 
@@ -151,7 +157,7 @@ class RecurrenceRule extends RecurrenceRuleBase
    * @param array|int|null|string $second
    * @return $this
    */
-  public function setBySecond($second) {
+  public function setBySecond($second): RecurrenceRule {
     $this->bySecond = self::toIntegerList($second, function($value) {
       return (!is_integer($value) || $value < 0 || $value > 60);
     });
@@ -162,11 +168,11 @@ class RecurrenceRule extends RecurrenceRuleBase
 
   /**
    * @inheritDoc
-   * @param array|int|null|string $weekNo
+   * @param array|int|null|string $value
    * @return $this
    */
-  public function setByWeekNo($weekNo) {
-    $this->byWeekNo = self::toIntegerList($weekNo, function($value) {
+  public function setByWeekNo($value): RecurrenceRule {
+    $this->byWeekNo = self::toIntegerList($value, function($value) {
       return (!is_integer($value) || $value > 53 || $value < -53 || $value === 0);
     });
 
@@ -176,11 +182,11 @@ class RecurrenceRule extends RecurrenceRuleBase
 
   /**
    * @inheritDoc
-   * @param array|int|null|string $yearDay
+   * @param array|int|null|string $day
    * @return $this
    */
-  public function setByYearDay($yearDay) {
-    $this->byYearDay = self::toIntegerList($yearDay, function($value) {
+  public function setByYearDay($day): RecurrenceRule {
+    $this->byYearDay = self::toIntegerList($day, function($value) {
       return (!is_integer($value) || $value > 366 || $value < -366 || $value === 0);
     });
 
@@ -239,9 +245,9 @@ class RecurrenceRule extends RecurrenceRuleBase
    * @param callable $validator
    * @return string|null
    */
-  public static function toIntegerList($value, callable $validator) {
+  public static function toIntegerList($value, callable $validator): ?string {
     if (is_null($value)) {
-      return $value;
+      return null;
     }
 
     if (is_string($value)) {
@@ -269,9 +275,9 @@ class RecurrenceRule extends RecurrenceRuleBase
    * @param callable $validator
    * @return string|null
    */
-  public static function toStringList($value, callable $validator) {
+  public static function toStringList($value, callable $validator): ?string {
     if (is_null($value)) {
-      return $value;
+      return null;
     }
 
     if (is_string($value)) {
