@@ -4,7 +4,6 @@ namespace lenz\calendarfield\fields;
 
 use Craft;
 use craft\base\ElementInterface;
-use craft\base\Field;
 use craft\base\PreviewableFieldInterface;
 use craft\base\SortableFieldInterface;
 use craft\errors\DeprecationException;
@@ -115,7 +114,7 @@ class CalendarEventField
    * @return TemplateWrapper
    * @throws Throwable
    */
-  public function getAttachmentNameTemplate() {
+  public function getAttachmentNameTemplate(): TemplateWrapper {
     if (!isset($this->_attachmentNameTemplate)) {
       $this->_attachmentNameTemplate = self::parseTemplate($this->attachmentNameTemplate);
     }
@@ -128,7 +127,7 @@ class CalendarEventField
    * @return array
    * @throws Exception
    */
-  public function getAttributeSettings($name) {
+  public function getAttributeSettings(string $name): array {
     if (!in_array($name, self::ATTRIBUTES_WITH_SETTINGS)) {
       throw new Exception('Unknown field name: ' . $name);
     }
@@ -142,7 +141,7 @@ class CalendarEventField
    * @return TemplateWrapper
    * @throws Throwable
    */
-  public function getDescriptionTemplate() {
+  public function getDescriptionTemplate(): TemplateWrapper {
     if (!isset($this->_descriptionTemplate)) {
       $this->_descriptionTemplate = self::parseTemplate($this->descriptionTemplate);
     }
@@ -178,7 +177,7 @@ class CalendarEventField
    * @return bool
    * @throws Exception
    */
-  public function isAttributePropagated(string $attribute) {
+  public function isAttributePropagated(string $attribute): bool {
     // If the attribute has no custom settings, always propagate it.
     // Craft checks the translation method on its own and only
     // class this if we should propagate
@@ -194,16 +193,32 @@ class CalendarEventField
    * @param string $name
    * @return bool
    * @throws Exception
+   * @noinspection PhpUnused Used in field template
    */
-  public function isAttributeVisibe($name) {
+  public function isAttributeVisible(string $name): bool {
     $settings = $this->getAttributeSettings($name);
     return !$settings['hidden'];
   }
 
   /**
    * @inheritDoc
+   * @throws Exception
    */
-  public function rules() {
+  public function normalizeValue($value, ElementInterface $element = null) {
+    // If we get a serialized array here, we must remove the additional attributes
+    // injected by CalendarEventField::toRecordAttributes
+    if (is_array($value)) {
+      unset($value['rootId']);
+      unset($value['dateTill']);
+    }
+
+    return parent::normalizeValue($value, $element);
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function rules(): array {
     $rules = parent::rules();
     $rules[] = [['attachmentNameTemplate', 'descriptionTemplate', 'initialLatitude', 'initialLongitude'], 'required'];
     $rules[] = [['attachmentNameTemplate', 'descriptionTemplate'], 'string'];
@@ -215,6 +230,7 @@ class CalendarEventField
 
   /**
    * @return void
+   * @throws Exception
    */
   public function validateAttributeSettings() {
     $validated = [];
@@ -242,7 +258,7 @@ class CalendarEventField
    * @param bool $disabled
    * @return string
    */
-  protected function getHtml(ForeignFieldModel $value, ElementInterface $element = null, $disabled = false) {
+  protected function getHtml(ForeignFieldModel $value, ElementInterface $element = null, $disabled = false): string {
     return $this->render(static::inputTemplate(), [
       'disabled' => $disabled,
       'field'    => $this,
@@ -255,15 +271,16 @@ class CalendarEventField
   /**
    * @inheritDoc
    * @throws Exception
+   * @noinspection PhpConditionAlreadyCheckedInspection
    */
-  protected function toRecordAttributes(ForeignFieldModel $model, ElementInterface $element) {
+  protected function toRecordAttributes(ForeignFieldModel $model, ElementInterface $element): array {
     if (!($model instanceof CalendarEvent)) {
       throw new Exception('Invalid model given');
     }
 
     $model->normalizeTimezone();
 
-    $root = $model->getRoot($element);
+    $root = $model->getRoot();
     $attributes = static::recordModelAttributes();
     ArrayHelper::removeValue($attributes, 'uid');
 
@@ -303,7 +320,7 @@ class CalendarEventField
    * @return TemplateWrapper
    * @throws Throwable
    */
-  static public function parseTemplate(string $source) {
+  static public function parseTemplate(string $source): TemplateWrapper {
     $view = Craft::$app->getView();
     $oldTemplateMode = $view->getTemplateMode();
 

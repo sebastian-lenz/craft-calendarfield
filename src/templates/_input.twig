@@ -40,7 +40,7 @@
   {% endset %}
 
   {% set content %}
-    {%- if field.isAttributeVisibe('title') %}
+    {%- if field.isAttributeVisible('title') %}
       {{- forms.textField({
         disabled: disabled,
         errors: value.getErrors('title'),
@@ -52,7 +52,7 @@
       }) -}}
     {% endif -%}
 
-    {%- if field.isAttributeVisibe('description') %}
+    {%- if field.isAttributeVisible('description') %}
       {{- forms.textareaField({
         disabled: disabled,
         errors: value.getErrors('description'),
@@ -64,7 +64,7 @@
       }) -}}
     {% endif -%}
 
-    {%- if field.isAttributeVisibe('location') %}
+    {%- if field.isAttributeVisible('location') %}
       {{- forms.textareaField({
         disabled: disabled,
         errors: value.getErrors('location'),
