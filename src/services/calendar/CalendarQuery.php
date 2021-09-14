@@ -11,7 +11,6 @@ use Exception;
 use InvalidArgumentException;
 use lenz\calendarfield\models\Recurrence;
 use lenz\calendarfield\records\CalendarEventRecord;
-use RRule\RRule;
 
 /**
  * Class CalendarQuery
@@ -50,7 +49,7 @@ class CalendarQuery extends EntryQuery
    * @return $this
    * @throws Exception
    */
-  public function eventAfter($value) {
+  public function eventAfter($value): CalendarQuery {
     $this->eventAfter = self::toDateTime($value);
     return $this;
   }
@@ -61,7 +60,7 @@ class CalendarQuery extends EntryQuery
    * @throws InvalidArgumentException
    * @throws Exception
    */
-  public function eventBefore($value) {
+  public function eventBefore($value): CalendarQuery {
     $this->eventBefore = self::toDateTime($value);
     return $this;
   }
@@ -69,7 +68,7 @@ class CalendarQuery extends EntryQuery
   /**
    * @inheritDoc
    */
-  public function populate($rows) {
+  public function populate($rows): array {
     if (empty($rows)) {
       return [];
     }
@@ -114,7 +113,7 @@ class CalendarQuery extends EntryQuery
       ]);
 
     // Join the content and elements_sites tables against our field table
-    foreach ($this->subQuery->join as $index => &$join) {
+    foreach ($this->subQuery->join as &$join) {
       $joinTable = $join[1];
       if (is_array($joinTable)) {
         $joinAlias = array_key_first($joinTable);
@@ -123,7 +122,7 @@ class CalendarQuery extends EntryQuery
         $joinAlias = $joinTable;
       }
 
-      if (preg_match('/(content|elements_sites)(?:}})$/', $joinTable, $match)) {
+      if (preg_match('/(content|elements_sites)}}$/', $joinTable, $match)) {
         $join[2] = [
           'and',
           "[[$joinAlias.elementId]] = [[calendarfield.rootId]]",
@@ -145,7 +144,8 @@ class CalendarQuery extends EntryQuery
    * @param array $rows
    * @return Recurrence[]
    */
-  private function createRecurrences(array $rows) {
+  private function createRecurrences(array $rows): array {
+    $siteId  = null;
     $siteIds = [];
     $rootIds = [];
     $result  = [];
@@ -187,6 +187,7 @@ class CalendarQuery extends EntryQuery
     return array_filter($result, function(Recurrence $recurrence) use ($roots) {
       $rootId = $recurrence->getRootId();
       $siteId = $recurrence->getSiteId();
+
       foreach ($roots as $root) {
         if ($root->id == $rootId && $root->siteId == $siteId) {
           $recurrence->setRoot($root);
@@ -208,7 +209,7 @@ class CalendarQuery extends EntryQuery
    * @throws InvalidArgumentException
    * @throws Exception
    */
-  static public function toDateTime($value) {
+  static public function toDateTime($value): DateTime {
     if (is_string($value)) {
       $value = new DateTime($value);
     }

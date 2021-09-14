@@ -333,7 +333,7 @@ class CalendarEvent extends ForeignFieldModel
    * @param mixed $after
    * @param mixed $before
    */
-  public function getRecurrences($after, $before): array {
+  public function getRecurrences($after = null, $before = null): array {
     return Recurrence::createForModel($this, $after, $before);
   }
 
@@ -385,6 +385,13 @@ class CalendarEvent extends ForeignFieldModel
     }
 
     return '';
+  }
+
+  /**
+   * @return string
+   */
+  public function getUid(): string {
+    return $this->_uid;
   }
 
   /**

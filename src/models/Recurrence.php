@@ -2,8 +2,10 @@
 
 namespace lenz\calendarfield\models;
 
+use Craft;
 use craft\base\ElementInterface;
 use craft\helpers\UrlHelper;
+use craft\models\Site;
 use DateTime;
 use DateTimeZone;
 use Exception;
@@ -21,7 +23,9 @@ use yii\base\BaseObject;
  * @property ElementInterface|null $root
  * @property string $rootId
  * @property string $siteId
+ * @property string $status
  * @property string $title
+ * @property string $uid
  */
 class Recurrence extends BaseObject
 {
@@ -38,14 +42,15 @@ class Recurrence extends BaseObject
   /**
    * @var ElementInterface|null
    */
-  private $_root = null;
+  private $_root;
 
   /**
    * @var array
    */
   private $_record;
+
   /**
-   *
+   * Format used to export json dates.
    */
   const JSON_DATE_FORMAT = 'c';
 
@@ -106,6 +111,11 @@ class Recurrence extends BaseObject
    * @return ElementInterface|null
    */
   public function getRoot(): ?ElementInterface {
+    if (!isset($this->_root)) {
+      $rootId = $this->getRootId();
+      $this->_root = empty($rootId) ? null : Craft::$app->elements->getElementById($rootId);
+    }
+
     return $this->_root;
   }
 
@@ -117,6 +127,13 @@ class Recurrence extends BaseObject
   }
 
   /**
+   * @return Site|null
+   */
+  public function getSite(): ?Site {
+    return Craft::$app->sites->getSiteById($this->getSiteId());
+  }
+
+  /**
    * @return string
    */
   public function getSiteId(): string {
@@ -124,13 +141,28 @@ class Recurrence extends BaseObject
   }
 
   /**
+   * @return string|null
+   */
+  public function getStatus(): ?string {
+    return $this->_record['status'];
+  }
+
+  /**
    * @return string
    */
   public function getTitle(): string {
     $title = $this->_record['title'];
+
     return empty($title) && !is_null($this->_root)
       ? (string)$this->_root
       : $title;
+  }
+
+  /**
+   * @return string
+   */
+  public function getUid(): string {
+    return $this->_record['uid'];
   }
 
   /**
@@ -183,11 +215,19 @@ class Recurrence extends BaseObject
 
   /**
    * @param CalendarEvent $model
-   * @param DateTime $after
-   * @param DateTime $before
+   * @param mixed $after
+   * @param mixed $before
    * @return Recurrence[]
    */
-  static public function createForModel(CalendarEvent $model, DateTime $after, DateTime $before): array {
+  static public function createForModel(CalendarEvent $model, $after = null, $before = null): array {
+    if (is_null($after)) {
+      $after = $model->dateStart;
+    }
+
+    if (is_null($before)) {
+      $before = $model->getDateTill();
+    }
+
     $recurrences = self::createForArray(
       $model->getAttributes(),
       $after,
@@ -203,15 +243,19 @@ class Recurrence extends BaseObject
 
   /**
    * @param array $row
-   * @param DateTime $after
-   * @param DateTime $before
+   * @param mixed $after
+   * @param mixed $before
    * @return Recurrence[]
    */
-  static public function createForArray(array $row, DateTime $after, DateTime $before): array {
+  static public function createForArray(array $row, $after = null, $before = null): array {
     try {
-      $timezone  = $row['dateAllDay'] ? null : new DateTimeZone('UTC');
-      $dateStart = new DateTime($row['dateStart'], $timezone);
-      $dateEnd   = new DateTime($row['dateEnd'], $timezone);
+      $timezone = $row['dateAllDay'] ? null : new DateTimeZone('UTC');
+      $toDateTime = function($value) use ($timezone) {
+        return $value instanceof DateTime ? $value : new DateTime($value, $timezone);
+      };
+
+      $dateStart = $toDateTime($row['dateStart']);
+      $dateEnd   = $toDateTime($row['dateEnd']);
     } catch (Exception $exception) {
       return [];
     }
