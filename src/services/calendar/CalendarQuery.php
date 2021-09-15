@@ -97,6 +97,7 @@ class CalendarQuery extends EntryQuery
       ->from(CalendarEventRecord::tableName() . ' calendarfield')
       ->select('calendarfield.id')
       ->groupBy('calendarfield.id')
+      ->orderBy('')
       ->innerJoin(
         ['calendarfieldOwner' => Table::ELEMENTS],
         '[[calendarfieldOwner.id]] = [[calendarfield.elementId]]'
@@ -184,7 +185,7 @@ class CalendarQuery extends EntryQuery
       'with'   => $this->with,
     ]);
 
-    return array_filter($result, function(Recurrence $recurrence) use ($roots) {
+    $result = array_filter($result, function(Recurrence $recurrence) use ($roots) {
       $rootId = $recurrence->getRootId();
       $siteId = $recurrence->getSiteId();
 
@@ -197,6 +198,9 @@ class CalendarQuery extends EntryQuery
 
       return false;
     });
+
+    usort($result, [Recurrence::class, 'sort']);
+    return $result;
   }
 
 

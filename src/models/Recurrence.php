@@ -273,4 +273,13 @@ class Recurrence extends BaseObject
       return new Recurrence($row, $dateStart, $dateEnd);
     }, $rRule->getOccurrencesBetween($after, $before));
   }
+
+  /**
+   * @param Recurrence $lft
+   * @param Recurrence $rgt
+   * @return int
+   */
+  static public function sort(Recurrence $lft, Recurrence $rgt): int {
+    return $lft->getDateStart()->getTimestamp() - $rgt->getDateStart()->getTimestamp();
+  }
 }
