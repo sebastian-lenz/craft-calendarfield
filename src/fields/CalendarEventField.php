@@ -271,7 +271,6 @@ class CalendarEventField
   /**
    * @inheritDoc
    * @throws Exception
-   * @noinspection PhpConditionAlreadyCheckedInspection
    */
   protected function toRecordAttributes(ForeignFieldModel $model, ElementInterface $element): array {
     if (!($model instanceof CalendarEvent)) {
@@ -279,15 +278,20 @@ class CalendarEventField
     }
 
     $model->normalizeTimezone();
-
     $root = $model->getRoot();
-    $attributes = static::recordModelAttributes();
-    ArrayHelper::removeValue($attributes, 'uid');
-
-    return $model->getAttributes($attributes) + [
+    $fixtures = [
       'rootId'   => is_null($root) ? null : $root->getId(),
       'dateTill' => $model->getDateTill(),
     ];
+
+    if ($model->hasSimpleRecurrenceRule()) {
+      $fixtures['rrule'] = (string)$model->getSimpleRecurrenceRule();
+    }
+
+    $attributes = static::recordModelAttributes();
+    ArrayHelper::removeValue($attributes, 'uid');
+
+    return array_merge($model->getAttributes($attributes), $fixtures);
   }
 
 

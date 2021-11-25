@@ -395,6 +395,13 @@ class CalendarEvent extends ForeignFieldModel
   }
 
   /**
+   * @return bool
+   */
+  public function hasSimpleRecurrenceRule(): bool {
+    return isset($this->_simpleRRule);
+  }
+
+  /**
    * @inheritDoc
    * @throws Exception
    */
