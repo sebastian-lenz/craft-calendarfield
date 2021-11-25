@@ -89,7 +89,7 @@ class CalendarController extends Controller
       'sources'   => $this->getSources(),
       'updateUrl' => $this->getUpdateUrl(),
       'input'     => [
-        'firstDay' => $this->getWeekStartDay(),
+        'firstDay' => Plugin::getWeekStartDay(),
         'locale'   => Craft::$app->locale->id,
         'timeZone' => Craft::$app->getTimeZone(),
       ],
@@ -117,23 +117,6 @@ class CalendarController extends Controller
    */
   private function getUpdateUrl() {
     return UrlHelper::cpUrl('calendar/update-event');
-  }
-
-  /**
-   * @return int
-   */
-  private function getWeekStartDay() : int {
-    $identity = Craft::$app->getUser()->getIdentity();
-    if (!is_null($identity)) {
-      $firstDay = $identity->getPreference('weekStartDay');
-    } else {
-      $firstDay = Craft::$app
-        ->getConfig()
-        ->getGeneral()
-        ->defaultWeekStartDay;
-    }
-
-    return intval($firstDay);
   }
 
   /**

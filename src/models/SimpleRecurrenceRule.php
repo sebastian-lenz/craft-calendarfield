@@ -6,6 +6,7 @@ use Craft;
 use craft\base\Model;
 use DateTime;
 use DateTimeZone;
+use lenz\calendarfield\Plugin;
 use Throwable;
 
 /**
@@ -276,11 +277,7 @@ class SimpleRecurrenceRule extends Model
       ],
     ];
 
-    $session = Craft::$app->getUser();
-    $user = $session->getIdentity();
-    $weekStartDay = $user ? $user->getPreference('weekStartDay') : null;
-
-    if ($weekStartDay == 1) {
+    if (Plugin::getWeekStartDay() == 1) {
       $weekdays[] = array_shift($weekdays);
     }
 

@@ -114,4 +114,23 @@ class Plugin extends \craft\base\Plugin
     $this->trigger(self::EXPORT_EVENT, $event);
     return $event->model;
   }
+
+
+  // Static methods
+  // --------------
+
+  /**
+   * @return int
+   */
+  static public function getWeekStartDay(): int {
+    static $weekStartDay;
+    if (!isset($weekStartDay)) {
+      $session = Craft::$app->getUser();
+      $user = $session->getIdentity();
+      $userPreference = $user ? $user->getPreference('weekStartDay') : null;
+      $weekStartDay = (int)($userPreference ?? Craft::$app->config->general->defaultWeekStartDay);
+    }
+
+    return $weekStartDay;
+  }
 }
