@@ -4,6 +4,7 @@ namespace lenz\calendarfield\models;
 
 use Craft;
 use craft\base\Model;
+use craft\i18n\Locale;
 use DateTime;
 use DateTimeZone;
 use lenz\calendarfield\Plugin;
@@ -151,48 +152,18 @@ class SimpleRecurrenceRule extends Model
   }
 
   /**
+   * @param string $length
    * @return array
    */
-  public function getAllMonths(): array {
-    return [
-      [
-        'value' => 1,
-        'label' => Craft::t('calendarfield', 'January'),
-      ], [
-        'value' => 2,
-        'label' => Craft::t('calendarfield', 'February'),
-      ], [
-        'value' => 3,
-        'label' => Craft::t('calendarfield', 'March'),
-      ], [
-        'value' => 4,
-        'label' => Craft::t('calendarfield', 'April'),
-      ], [
-        'value' => 5,
-        'label' => Craft::t('calendarfield', 'May'),
-      ], [
-        'value' => 6,
-        'label' => Craft::t('calendarfield', 'June'),
-      ], [
-        'value' => 7,
-        'label' => Craft::t('calendarfield', 'July'),
-      ], [
-        'value' => 8,
-        'label' => Craft::t('calendarfield', 'August'),
-      ], [
-        'value' => 9,
-        'label' => Craft::t('calendarfield', 'September'),
-      ], [
-        'value' => 10,
-        'label' => Craft::t('calendarfield', 'October'),
-      ], [
-        'value' => 11,
-        'label' => Craft::t('calendarfield', 'November'),
-      ], [
-        'value' => 12,
-        'label' => Craft::t('calendarfield', 'December'),
-      ]
-    ];
+  public function getAllMonths(string $length = Locale::LENGTH_FULL): array {
+    $months = Craft::$app->locale->getMonthNames($length);
+
+    return array_map(function($value, $label) {
+      return [
+        'value' => $value + 1,
+        'label' => $label,
+      ];
+    }, array_keys($months), $months);
   }
 
   /**
@@ -249,31 +220,33 @@ class SimpleRecurrenceRule extends Model
   }
 
   /**
+   * @param string $length
    * @return array
    */
-  public function getAllWeekdays(): array {
+  public function getAllWeekdays(string $length = Locale::LENGTH_FULL): array {
+    $locale = Craft::$app->locale;
     $weekdays = [
       [
         'value' => 'SU',
-        'label' => Craft::t('calendarfield', 'Sunday'),
+        'label' => $locale->getWeekDayName(0, $length),
       ], [
         'value' => 'MO',
-        'label' => Craft::t('calendarfield', 'Monday'),
+        'label' => $locale->getWeekDayName(1, $length),
       ], [
         'value' => 'TU',
-        'label' => Craft::t('calendarfield', 'Tuesday'),
+        'label' => $locale->getWeekDayName(2, $length),
       ], [
         'value' => 'WE',
-        'label' => Craft::t('calendarfield', 'Wednesday'),
+        'label' => $locale->getWeekDayName(3, $length),
       ], [
         'value' => 'TH',
-        'label' => Craft::t('calendarfield', 'Thursday'),
+        'label' => $locale->getWeekDayName(4, $length),
       ], [
         'value' => 'FR',
-        'label' => Craft::t('calendarfield', 'Friday'),
+        'label' => $locale->getWeekDayName(5, $length),
       ], [
         'value' => 'SA',
-        'label' => Craft::t('calendarfield', 'Saturday'),
+        'label' => $locale->getWeekDayName(6, $length),
       ],
     ];
 

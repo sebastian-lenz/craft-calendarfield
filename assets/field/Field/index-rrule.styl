@@ -150,12 +150,18 @@
 .calendarfield--rruleMonthDaysInput,
 .calendarfield--rruleMonthsInput {
   display: none;
+
+  &:first-child + .btn {
+    border-top-left-radius: 5px !important;
+    border-bottom-left-radius: 5px !important;
+  }
 }
 
 .calendarfield--rruleWeekdaysInput:checked + .btn,
 .calendarfield--rruleMonthDaysInput:checked + .btn,
 .calendarfield--rruleMonthsInput:checked + .btn {
-  background: linear-gradient(#e4e5e7, #eaebec);
+  background: #1992d4;
+  color: #fff;
 }
 
 .calendarfield--rruleWeekdaysButton.small,
