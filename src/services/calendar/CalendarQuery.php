@@ -29,6 +29,11 @@ class CalendarQuery extends EntryQuery
    */
   public $eventBefore;
 
+  /**
+   * @var mixed
+   */
+  private $originalWith;
+
 
   /**
    * CalendarQuery constructor.
@@ -79,6 +84,16 @@ class CalendarQuery extends EntryQuery
 
   // Protected methods
   // -----------------
+
+  /**
+   * @return bool
+   */
+  protected function beforePrepare(): bool {
+    $this->originalWith = $this->with;
+    $this->with = null;
+
+    return parent::beforePrepare();
+  }
 
   /**
    * @inheritDoc
@@ -182,7 +197,7 @@ class CalendarQuery extends EntryQuery
     $roots = Entry::findAll([
       'id'     => $rootIds,
       'siteId' => $siteId,
-      'with'   => $this->with,
+      'with'   => $this->originalWith,
     ]);
 
     $result = array_filter($result, function(Recurrence $recurrence) use ($roots) {
