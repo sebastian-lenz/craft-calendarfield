@@ -217,9 +217,10 @@ class Recurrence extends BaseObject
    * @param CalendarEvent $model
    * @param mixed $after
    * @param mixed $before
+   * @param mixed $limit
    * @return Recurrence[]
    */
-  static public function createForModel(CalendarEvent $model, $after = null, $before = null): array {
+  static public function createForModel(CalendarEvent $model, $after = null, $before = null, $limit = null): array {
     if (is_null($after)) {
       $after = $model->dateStart;
     }
@@ -231,7 +232,8 @@ class Recurrence extends BaseObject
     $recurrences = self::createForArray(
       $model->getAttributes(),
       $after,
-      $before
+      $before,
+      $limit
     );
 
     foreach ($recurrences as $recurrence) {
@@ -245,9 +247,10 @@ class Recurrence extends BaseObject
    * @param array $row
    * @param mixed $after
    * @param mixed $before
+   * @param mixed $limit
    * @return Recurrence[]
    */
-  static public function createForArray(array $row, $after = null, $before = null): array {
+  static public function createForArray(array $row, $after = null, $before = null, $limit = null): array {
     try {
       $timezone = $row['dateAllDay'] ? null : new DateTimeZone('UTC');
       $toDateTime = function($value) use ($timezone) {
@@ -271,7 +274,7 @@ class Recurrence extends BaseObject
       $dateEnd = clone $dateStart;
       $dateEnd->add($duration);
       return new Recurrence($row, $dateStart, $dateEnd);
-    }, $rRule->getOccurrencesBetween($after, $before));
+    }, $rRule->getOccurrencesBetween($after, $before, $limit));
   }
 
   /**

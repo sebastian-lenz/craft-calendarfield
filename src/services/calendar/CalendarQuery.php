@@ -32,6 +32,11 @@ class CalendarQuery extends EntryQuery
   /**
    * @var mixed
    */
+  private $originalLimit;
+
+  /**
+   * @var mixed
+   */
   private $originalWith;
 
 
@@ -90,6 +95,8 @@ class CalendarQuery extends EntryQuery
    */
   protected function beforePrepare(): bool {
     $this->originalWith = $this->with;
+    $this->originalLimit = $this->limit;
+    $this->limit = null;
     $this->with = null;
 
     return parent::beforePrepare();
@@ -161,15 +168,9 @@ class CalendarQuery extends EntryQuery
    * @return Recurrence[]
    */
   private function createRecurrences(array $rows): array {
-    $siteId  = null;
-    $siteIds = [];
-    $rootIds = [];
     $result  = [];
-
     foreach ($rows as $row) {
-      $rootId = $row['rootId'];
-      $siteId = $row['siteId'];
-      if (is_null($rootId)) {
+      if (is_null($row['siteId']) || is_null($row['rootId'])) {
         continue;
       }
 
@@ -179,24 +180,31 @@ class CalendarQuery extends EntryQuery
         $this->eventBefore
       );
 
-      if (count($recurrences) == 0) {
-        continue;
+      if (count($recurrences)) {
+        $result = array_merge($result, $recurrences);
+      }
+    }
+
+    usort($result, [Recurrence::class, 'sort']);
+    if (!empty($this->originalLimit)) {
+      $result = array_slice($result, 0, $this->originalLimit);
+    }
+
+    $siteIds = [];
+    $rootIds = [];
+    foreach ($result as $recurrence) {
+      if (!in_array($recurrence->siteId, $siteIds)) {
+        $siteIds[] = $recurrence->siteId;
       }
 
-      if (!is_null($siteId) && !in_array($siteId, $siteIds)) {
-        $siteIds[] = $siteId;
+      if (!in_array($recurrence->rootId, $rootIds)) {
+        $rootIds[] = $recurrence->rootId;
       }
-
-      if (!in_array($rootId, $rootIds)) {
-        $rootIds[] = $rootId;
-      }
-
-      $result = array_merge($result, $recurrences);
     }
 
     $roots = Entry::findAll([
       'id'     => $rootIds,
-      'siteId' => $siteId,
+      'siteId' => $siteIds,
       'with'   => $this->originalWith,
     ]);
 
@@ -214,7 +222,6 @@ class CalendarQuery extends EntryQuery
       return false;
     });
 
-    usort($result, [Recurrence::class, 'sort']);
     return $result;
   }
 

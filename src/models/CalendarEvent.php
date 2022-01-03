@@ -332,9 +332,10 @@ class CalendarEvent extends ForeignFieldModel
   /**
    * @param mixed $after
    * @param mixed $before
+   * @param mixed $limit
    */
-  public function getRecurrences($after = null, $before = null): array {
-    return Recurrence::createForModel($this, $after, $before);
+  public function getRecurrences($after = null, $before = null, $limit = null): array {
+    return Recurrence::createForModel($this, $after, $before, $limit);
   }
 
   /**
