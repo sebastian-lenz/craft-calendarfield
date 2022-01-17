@@ -231,7 +231,7 @@ class CalendarEvent extends ForeignFieldModel
     /** @var DateTime $result */
     $result = $rRule[$count - 1];
     if (!is_null($this->dateEnd)) {
-      $result->add($this->dateEnd->diff($this->dateStart));
+      $result->add($this->dateStart->diff($this->dateEnd, true));
     }
 
     return $result;
