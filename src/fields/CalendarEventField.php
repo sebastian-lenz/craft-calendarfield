@@ -8,6 +8,7 @@ use craft\base\PreviewableFieldInterface;
 use craft\base\SortableFieldInterface;
 use craft\errors\DeprecationException;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Json;
 use craft\web\View;
 use Exception;
 use lenz\calendarfield\models\CalendarEvent;
@@ -205,6 +206,14 @@ class CalendarEventField
    * @throws Exception
    */
   public function normalizeValue($value, ElementInterface $element = null) {
+    if (is_string($value)) {
+      try {
+        $value = Json::decode($value);
+      } catch (Throwable $error) {
+        // Ignore this
+      }
+    }
+
     // If we get a serialized array here, we must remove the additional attributes
     // injected by CalendarEventField::toRecordAttributes
     if (is_array($value)) {
