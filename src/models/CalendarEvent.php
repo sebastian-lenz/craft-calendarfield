@@ -29,6 +29,11 @@ use yii\base\InvalidConfigException;
 class CalendarEvent extends ForeignFieldModel
 {
   /**
+   * @var string
+   */
+  public $calendarTitle;
+
+  /**
    * @var boolean
    */
   public $dateAllDay;
@@ -72,11 +77,6 @@ class CalendarEvent extends ForeignFieldModel
    * @var string
    */
   public $status;
-
-  /**
-   * @var string
-   */
-  public $title;
 
   /**
    * @var SimpleRecurrenceRule
@@ -376,8 +376,8 @@ class CalendarEvent extends ForeignFieldModel
    * @return string
    */
   public function getSummary(): string {
-    if (!empty($this->title)) {
-      return $this->title;
+    if (!empty($this->calendarTitle)) {
+      return $this->calendarTitle;
     }
 
     $rootElement = $this->getRoot();
@@ -386,6 +386,13 @@ class CalendarEvent extends ForeignFieldModel
     }
 
     return '';
+  }
+
+  /**
+   * @return string
+   */
+  public function getTitle(): string {
+    return $this->calendarTitle;
   }
 
   /**
@@ -454,7 +461,7 @@ class CalendarEvent extends ForeignFieldModel
    */
   public function rules(): array {
     $rules = [
-      [['title', 'description', 'location'], 'string'],
+      [['calendarTitle', 'description', 'location'], 'string'],
       [['dateAllDay'], 'boolean'],
       [['geoLatitude', 'geoLongitude'], 'double'],
       ['dateStart', 'validateDate'],

@@ -14,7 +14,7 @@ use lenz\craft\utils\foreignField\ForeignFieldRecord;
  * Class CalendarEventRecord
  *
  * @property string $rootId
- * @property string $title
+ * @property string $calendarTitle
  * @property string $description
  * @property string $location
  * @property string $status
@@ -44,7 +44,7 @@ class CalendarEventRecord extends ForeignFieldRecord
    */
   public function rules(): array {
     return [
-      [['title', 'description', 'location', 'rrule'], 'string'],
+      [['calendarTitle', 'description', 'location', 'rrule'], 'string'],
       [['dateAllDay'], 'boolean'],
       [['dateStart', 'dateEnd', 'dateTill'], 'validateDateTime'],
       [['geoLatitude', 'geoLongitude'], 'double'],
@@ -87,33 +87,6 @@ class CalendarEventRecord extends ForeignFieldRecord
 
   // Static methods
   // --------------
-
-  /**
-   * @inheritDoc
-   */
-  static public function createTable(Migration $migration, array $columns = []) {
-    parent::createTable($migration, [
-      'rootId'       => $migration->integer()->notNull(),
-      'title'        => $migration->char(255),
-      'description'  => $migration->text(),
-      'location'     => $migration->text(),
-      'status'       => $migration->enum('status', CalendarEventRecord::STATUSES),
-      'dateAllDay'   => $migration->boolean(),
-      'dateStart'    => $migration->dateTime(),
-      'dateEnd'      => $migration->dateTime(),
-      'dateTill'     => $migration->dateTime(),
-      'geoLatitude'  => $migration->decimal(20, 16),
-      'geoLongitude' => $migration->decimal(20, 16),
-      'rrule'        => $migration->text(),
-    ] + $columns);
-
-    $migration->createIndex(null, self::tableName(), ['dateStart']);
-    $migration->createIndex(null, self::tableName(), ['dateEnd']);
-    $migration->createIndex(null, self::tableName(), ['dateTill']);
-    $migration->createIndex(null, self::tableName(), ['rootId']);
-
-    $migration->addForeignKey(null, self::tableName(), ['rootId'], Table::ELEMENTS, ['id'], 'CASCADE');
-  }
 
   /**
    * @param string $column

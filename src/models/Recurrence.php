@@ -151,7 +151,7 @@ class Recurrence extends BaseObject
    * @return string
    */
   public function getTitle(): string {
-    $title = $this->_record['title'];
+    $title = $this->_record['calendarTitle'];
 
     return empty($title) && !is_null($this->_root)
       ? (string)$this->_root

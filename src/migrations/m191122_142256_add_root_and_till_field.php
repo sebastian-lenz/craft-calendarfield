@@ -21,7 +21,6 @@ class m191122_142256_add_root_and_till_field extends Migration
    */
   public function safeUp() {
     $table = CalendarEventRecord::tableName();
-
     $this->addColumn($table, 'dateTill', $this->dateTime());
     $this->addColumn($table, 'rootId', $this->integer()->notNull());
 
@@ -30,10 +29,9 @@ class m191122_142256_add_root_and_till_field extends Migration
       'dateTill' => new Expression('dateEnd'),
     ]);
 
-    $this->createIndex(null, $table, ['dateTill']);
-    $this->createIndex(null, $table, ['rootId']);
-
-    $this->addForeignKey(null, $table, ['rootId'], Table::ELEMENTS, ['id'], 'CASCADE', null);
+    $this->createIndex('idx_lenz_calendarfield_dateTill', $table, ['dateTill']);
+    $this->createIndex('idx_lenz_calendarfield_rootId', $table, ['rootId']);
+    $this->addForeignKey('fk_lenz_calendarfield_rootId', $table, ['rootId'], Table::ELEMENTS, ['id'], 'CASCADE', null);
 
     Craft::$app->elements->resaveElements(Entry::find());
   }
@@ -41,8 +39,15 @@ class m191122_142256_add_root_and_till_field extends Migration
   /**
    * @inheritdoc
    */
-  public function safeDown() {
-    echo "m191122_142256_add_root_and_till_field cannot be reverted.\n";
-    return false;
+  public function safeDown(): bool {
+    $table = CalendarEventRecord::tableName();
+    $this->dropColumn($table, 'rootId');
+    $this->dropColumn($table, 'dateTill');
+
+    $this->dropForeignKey('fk_lenz_calendarfield_rootId', $table);
+    $this->dropIndex('idx_lenz_calendarfield_rootId', $table);
+    $this->dropIndex('idx_lenz_calendarfield_dateTill', $table);
+
+    return true;
   }
 }

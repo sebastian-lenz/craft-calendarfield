@@ -40,15 +40,15 @@
   {% endset %}
 
   {% set content %}
-    {%- if field.isAttributeVisible('title') %}
+    {%- if field.isAttributeVisible('calendarTitle') %}
       {{- forms.textField({
         disabled: disabled,
-        errors: value.getErrors('title'),
+        errors: value.getErrors('calendarTitle'),
         label: 'Title'|t('calendarfield'),
         maxlength: 255,
-        name: 'title',
-        translatable: not field.isAttributePropagated('title'),
-        value: value.title,
+        name: 'calendarTitle',
+        translatable: not field.isAttributePropagated('calendarTitle'),
+        value: value.calendarTitle,
       }) -}}
     {% endif -%}
 

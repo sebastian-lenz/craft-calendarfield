@@ -80,7 +80,7 @@ class CalendarEventField
    * Known attributes that have additional settings.
    */
   const ATTRIBUTES_WITH_SETTINGS = [
-    'description', 'location', 'title',
+    'description', 'calendarTitle', 'location',
   ];
 
   /**
@@ -356,7 +356,7 @@ class CalendarEventField
    */
   public static function recordModelAttributes(): array {
     return [
-      'title',
+      'calendarTitle',
       'description',
       'location',
       'dateAllDay',
