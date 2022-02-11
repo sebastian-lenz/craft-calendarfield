@@ -43,6 +43,10 @@ class m220209_181600_rename_title_column extends Migration
    * @throws Throwable
    */
   private function renameFieldSettings(string $oldName, string $newName) {
+    if (Craft::$app->projectConfig->readOnly) {
+      return;
+    }
+
     foreach (Craft::$app->fields->getAllFields() as $field) {
       if (
         !($field instanceof CalendarEventField) ||
