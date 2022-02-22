@@ -42,6 +42,11 @@ class Recurrence extends BaseObject
   /**
    * @var ElementInterface|null
    */
+  private $_element;
+
+  /**
+   * @var ElementInterface|null
+   */
   private $_root;
 
   /**
@@ -91,6 +96,25 @@ class Recurrence extends BaseObject
    */
   public function getDateStart(): DateTime {
     return $this->_dateStart;
+  }
+
+  /**
+   * @return ElementInterface|null
+   */
+  public function getElement(): ?ElementInterface {
+    if (!isset($this->_element)) {
+      $elementId = $this->getElementId();
+      $this->_element = empty($elementId) ? null : Craft::$app->elements->getElementById($elementId);
+    }
+
+    return $this->_element;
+  }
+
+  /**
+   * @return int
+   */
+  public function getElementId(): int {
+    return $this->_record['elementId'];
   }
 
   /**
@@ -166,10 +190,17 @@ class Recurrence extends BaseObject
   }
 
   /**
-   * @param ElementInterface $owner
+   * @param ElementInterface $element
    */
-  public function setRoot(ElementInterface $owner) {
-    $this->_root = $owner;
+  public function setElement(ElementInterface $element) {
+    $this->_element = $element;
+  }
+
+  /**
+   * @param ElementInterface $root
+   */
+  public function setRoot(ElementInterface $root) {
+    $this->_root = $root;
   }
 
   /**
@@ -229,15 +260,17 @@ class Recurrence extends BaseObject
       $before = $model->getDateTill();
     }
 
-    $recurrences = self::createForArray(
-      $model->getAttributes(),
-      $after,
-      $before,
-      $limit
-    );
+    $owner = $model->getOwner();
+    $root = $model->getRoot();
+    $attributes = array_merge([
+      'elementId' => $owner->id,
+      'rootId' => $root->id,
+    ], $model->getAttributes());
 
+    $recurrences = self::createForArray($attributes, $after, $before, $limit);
     foreach ($recurrences as $recurrence) {
-      $recurrence->setRoot($model->getRoot());
+      $recurrence->setElement($owner);
+      $recurrence->setRoot($root);
     }
 
     return $recurrences;
