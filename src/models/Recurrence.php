@@ -286,8 +286,15 @@ class Recurrence extends BaseObject
   static public function createForArray(array $row, $after = null, $before = null, $limit = null): array {
     try {
       $timezone = $row['dateAllDay'] ? null : new DateTimeZone('UTC');
-      $toDateTime = function($value) use ($timezone) {
-        return $value instanceof DateTime ? $value : new DateTime($value, $timezone);
+      $systemTimeZone = $row['dateAllDay'] ? null : new DateTimeZone(Craft::$app->getTimeZone());
+
+      $toDateTime = function($value) use ($timezone, $systemTimeZone) {
+        $result = $value instanceof DateTime ? clone $value : new DateTime($value, $timezone);
+        if (!is_null($systemTimeZone)) {
+          $result->setTimezone($systemTimeZone);
+        }
+
+        return $result;
       };
 
       $dateStart = $toDateTime($row['dateStart']);
