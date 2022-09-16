@@ -304,6 +304,15 @@ class Recurrence extends BaseObject
     }
 
     if (empty($row['rrule'])) {
+      $after = is_null($after) ? null : RRule::parseDate($after);
+      $before = is_null($before) ? null : RRule::parseDate($before);
+      if (
+        ($before && $before->getTimestamp() < $dateStart->getTimestamp()) ||
+        ($after && $after->getTimestamp() > $dateEnd->getTimestamp())
+      ) {
+        return [];
+      }
+
       return [new Recurrence($row, $dateStart, $dateEnd)];
     }
 
