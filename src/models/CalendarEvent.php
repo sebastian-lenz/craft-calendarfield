@@ -9,6 +9,7 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
 use DateTime;
 use DateInterval;
+use DateTimeInterface;
 use DateTimeZone;
 use Eluceo\iCal\Component\Event as ExportModel;
 use Eluceo\iCal\Property\Event\Geo;
@@ -31,62 +32,62 @@ class CalendarEvent extends ForeignFieldModel
   /**
    * @var string
    */
-  public $calendarTitle;
+  public string $calendarTitle = '';
 
   /**
    * @var boolean
    */
-  public $dateAllDay;
+  public bool $dateAllDay = false;
 
   /**
    * @var DateTime|null
    */
-  public $dateEnd;
+  public ?DateTime $dateEnd = null;
 
   /**
    * @var DateTime|null
    */
-  public $dateStart;
+  public ?DateTime $dateStart = null;
 
   /**
    * @var string
    */
-  public $description;
+  public string $description = '';
 
   /**
-   * @var float
+   * @var float|null
    */
-  public $geoLatitude;
+  public ?float $geoLatitude = null;
 
   /**
-   * @var float
+   * @var float|null
    */
-  public $geoLongitude;
-
-  /**
-   * @var string
-   */
-  public $location;
+  public ?float $geoLongitude = null;
 
   /**
    * @var string
    */
-  public $rrule;
+  public string $location = '';
 
   /**
    * @var string
    */
-  public $status;
+  public string $rrule = '';
+
+  /**
+   * @var string
+   */
+  public string $status = '';
 
   /**
    * @var SimpleRecurrenceRule
    */
-  private $_simpleRRule;
+  private SimpleRecurrenceRule $_simpleRRule;
 
   /**
    * @var string
    */
-  private $_uid;
+  private string $_uid;
 
 
   /**
@@ -330,11 +331,13 @@ class CalendarEvent extends ForeignFieldModel
   }
 
   /**
-   * @param mixed $after
-   * @param mixed $before
-   * @param mixed $limit
+   * @param DateTimeInterface|int|string|null $after
+   * @param DateTimeInterface|int|string|null $before
+   * @param int|null $limit
+   * @throws InvalidConfigException
+   * @noinspection PhpUnused (Public API)
    */
-  public function getRecurrences($after = null, $before = null, $limit = null): array {
+  public function getRecurrences(DateTimeInterface|int|string $after = null, DateTimeInterface|int|string $before = null, int $limit = null): array {
     return Recurrence::createForModel($this, $after, $before, $limit);
   }
 
@@ -390,6 +393,7 @@ class CalendarEvent extends ForeignFieldModel
 
   /**
    * @return string
+   * @noinspection PhpUnused (Public API)
    */
   public function getTitle(): string {
     return $this->calendarTitle;
@@ -397,6 +401,7 @@ class CalendarEvent extends ForeignFieldModel
 
   /**
    * @return string
+   * @noinspection PhpUnused (Public API)
    */
   public function getUid(): string {
     return $this->_uid;
@@ -413,7 +418,7 @@ class CalendarEvent extends ForeignFieldModel
    * @inheritDoc
    * @throws Exception
    */
-  public function init() {
+  public function init(): void {
     foreach ($this->datetimeAttributes() as $attribute) {
       if ($this->$attribute !== null) {
         $this->$attribute = DateTimeHelper::toDateTime(
@@ -478,6 +483,7 @@ class CalendarEvent extends ForeignFieldModel
 
   /**
    * @param string $value
+   * @noinspection PhpUnused (Public API)
    */
   public function setUid(string $value) {
     $this->_uid = $value;
@@ -568,8 +574,7 @@ class CalendarEvent extends ForeignFieldModel
    * @param string $timezone
    * @param DateTime $value
    * @param DateTime|null $result
-   * @return DateTime
-   * @throws Exception
+   * @return DateTime|null
    */
   static public function convertTimezone(string $timezone, DateTime $value, DateTime $result = null): ?DateTime {
     $year   = $value->format('Y');

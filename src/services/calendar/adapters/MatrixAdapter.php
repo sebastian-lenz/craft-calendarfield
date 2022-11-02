@@ -19,7 +19,7 @@ class MatrixAdapter extends AbstractAdapter
   /**
    * @var int
    */
-  private $_matrixFieldId;
+  private int $_matrixFieldId;
 
 
   /**
@@ -31,6 +31,8 @@ class MatrixAdapter extends AbstractAdapter
    */
   public function __construct(int $fieldId, int $entryTypeId, int $matrixFieldId) {
     parent::__construct($fieldId, $entryTypeId);
+
+    $this->_matrixFieldId = $matrixFieldId;
   }
 
   /**
@@ -46,9 +48,9 @@ class MatrixAdapter extends AbstractAdapter
   }
 
   /**
-   * @return Matrix
+   * @return Matrix|null
    */
-  public function getMatrixField() {
+  public function getMatrixField(): ?Matrix {
     $field = Craft::$app->getFields()->getFieldById($this->_matrixFieldId);
     return $field instanceof Matrix
       ? $field
@@ -64,7 +66,7 @@ class MatrixAdapter extends AbstractAdapter
    * @param CalendarEventField $field
    * @return EntryAdapter[]|null
    */
-  static public function create(FieldLayout $layout, CalendarEventField $field) {
+  static public function create(FieldLayout $layout, CalendarEventField $field): ?array {
     if ($layout->type != MatrixBlock::class) {
       return null;
     }

@@ -17,15 +17,16 @@ abstract class AbstractAdapter extends BaseObject
   /**
    * @var int
    */
-  protected $_entryTypeId;
+  protected int $_entryTypeId;
 
   /**
    * @var int
    */
-  protected $_fieldId;
+  protected int $_fieldId;
 
   /**
    * A list of all known adapters.
+   * @var array<class-string<AbstractAdapter>>
    */
   const ADAPTERS = [
     EntryAdapter::class,
@@ -49,21 +50,21 @@ abstract class AbstractAdapter extends BaseObject
   /**
    * @return EntryType|null
    */
-  public function getEntryType() {
+  public function getEntryType(): ?EntryType {
     return Craft::$app->sections->getEntryTypeById($this->_entryTypeId);
   }
 
   /**
    * @return int
    */
-  public function getEntryTypeId() {
+  public function getEntryTypeId(): int {
     return $this->_entryTypeId;
   }
 
   /**
    * @return CalendarEventField|null
    */
-  public function getField() {
+  public function getField(): ?CalendarEventField {
     $field = Craft::$app->getFields()->getFieldById($this->_fieldId);
 
     return $field instanceof CalendarEventField
@@ -85,12 +86,12 @@ abstract class AbstractAdapter extends BaseObject
    * @param CalendarEventField $field
    * @return AbstractAdapter[]|null
    */
-  abstract static function create(FieldLayout $layout, CalendarEventField $field);
+  abstract static function create(FieldLayout $layout, CalendarEventField $field): ?array;
 
   /**
    * @return AbstractAdapter[]
    */
-  public static function createAll() {
+  public static function createAll(): array {
     $result = [];
     $fields = Craft::$app->getFields();
     $layoutIds = FieldLayoutRecord::find()
@@ -100,7 +101,8 @@ abstract class AbstractAdapter extends BaseObject
     foreach ($layoutIds as $layoutId) {
       $layout = $fields->getLayoutById($layoutId);
 
-      foreach ($layout->getFields() as $field) {
+      foreach ($layout->getCustomFieldElements() as $element) {
+        $field = $element->getField();
         if (!($field instanceof CalendarEventField)) {
           continue;
         }

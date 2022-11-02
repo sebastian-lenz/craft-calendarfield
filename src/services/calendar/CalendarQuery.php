@@ -22,22 +22,22 @@ class CalendarQuery extends EntryQuery
   /**
    * @var DateTime
    */
-  public $eventAfter;
+  public DateTime $eventAfter;
 
   /**
    * @var DateTime
    */
-  public $eventBefore;
+  public DateTime $eventBefore;
 
   /**
    * @var mixed
    */
-  private $originalLimit;
+  private mixed $originalLimit;
 
   /**
    * @var mixed
    */
-  private $originalWith;
+  private array|string|null $originalWith;
 
 
   /**
@@ -59,18 +59,18 @@ class CalendarQuery extends EntryQuery
    * @return $this
    * @throws Exception
    */
-  public function eventAfter($value): CalendarQuery {
+  public function eventAfter(DateTime|string $value): CalendarQuery {
     $this->eventAfter = self::toDateTime($value);
     return $this;
   }
 
   /**
-   * @param mixed $value
+   * @param DateTime|string $value
    * @return $this
    * @throws InvalidArgumentException
    * @throws Exception
    */
-  public function eventBefore($value): CalendarQuery {
+  public function eventBefore(DateTime|string $value): CalendarQuery {
     $this->eventBefore = self::toDateTime($value);
     return $this;
   }
@@ -145,7 +145,7 @@ class CalendarQuery extends EntryQuery
         $joinAlias = $joinTable;
       }
 
-      if (preg_match('/(content|elements_sites)}}$/', $joinTable, $match)) {
+      if (preg_match('/(content|elements_sites)}}$/', $joinTable)) {
         $join[2] = [
           'and',
           "[[$joinAlias.elementId]] = [[calendarfield.rootId]]",
@@ -208,7 +208,7 @@ class CalendarQuery extends EntryQuery
       'with'   => $this->originalWith,
     ]);
 
-    $result = array_filter($result, function(Recurrence $recurrence) use ($roots) {
+    return array_filter($result, function(Recurrence $recurrence) use ($roots) {
       $rootId = $recurrence->getRootId();
       $siteId = $recurrence->getSiteId();
 
@@ -221,8 +221,6 @@ class CalendarQuery extends EntryQuery
 
       return false;
     });
-
-    return $result;
   }
 
 
@@ -235,7 +233,7 @@ class CalendarQuery extends EntryQuery
    * @throws InvalidArgumentException
    * @throws Exception
    */
-  static public function toDateTime($value): DateTime {
+  static public function toDateTime(DateTime|string $value): DateTime {
     if (is_string($value)) {
       $value = new DateTime($value);
     }

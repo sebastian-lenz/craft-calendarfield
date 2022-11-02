@@ -9,6 +9,7 @@ return [
   'Attach geo location' => 'Kartenangabe aktivieren',
   'All day' => 'Ganztägig',
   'At' => 'Am',
+  'Calendar' => 'Kalender',
   'Cancelled' => 'Abgesagt',
   'Confirmed' => 'Bestätigt',
   'Daily' => 'Täglich',

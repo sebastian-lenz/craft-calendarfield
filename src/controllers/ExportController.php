@@ -1,9 +1,12 @@
 <?php
 
+/** @noinspection PhpUnused */
+
 namespace lenz\calendarfield\controllers;
 
 use Craft;
 use craft\elements\Entry;
+use craft\errors\InvalidFieldException;
 use craft\web\Controller;
 use craft\web\Response;
 use Eluceo\iCal\Component\Calendar;
@@ -12,6 +15,7 @@ use lenz\calendarfield\models\CalendarEvent;
 use lenz\calendarfield\records\CalendarEventRecord;
 use Throwable;
 use yii\web\NotFoundHttpException;
+use yii\web\Response as ResponseAlias;
 
 /**
  * Class ExportController
@@ -21,16 +25,16 @@ class ExportController extends Controller
   /**
    * @inheritDoc
    */
-  protected $allowAnonymous = true;
+  protected int|bool|array $allowAnonymous = true;
 
 
   /**
    * @param string $uid
-   * @return string
+   * @return Response
    * @throws NotFoundHttpException
    * @throws Throwable
    */
-  public function actionIndex(string $uid) {
+  public function actionIndex(string $uid): Response {
     $model = $this->loadModel($uid);
     if (is_null($model)) {
       throw new NotFoundHttpException();
@@ -56,7 +60,7 @@ class ExportController extends Controller
    * @return string
    * @throws Throwable
    */
-  private function createContent(CalendarEvent $model) {
+  private function createContent(CalendarEvent $model): string {
     $calendar = new Calendar(\Craft::$app->getSystemName());
     $calendar->addComponent($model->getICalEvent());
 
@@ -68,9 +72,9 @@ class ExportController extends Controller
    * @return Response
    * @throws Throwable
    */
-  private function createResponse(CalendarEvent $model) {
+  private function createResponse(CalendarEvent $model): Response {
     $response = new Response();
-    $response->format = Response::FORMAT_RAW;
+    $response->format = ResponseAlias::FORMAT_RAW;
     $response->content = $this->createContent($model);
     $response->headers->add('Content-Type', 'text/calendar');
     $response->setDownloadHeaders($model->getAttachmentName(), 'text/calendar');
@@ -81,8 +85,11 @@ class ExportController extends Controller
   /**
    * @param string $uid
    * @return CalendarEvent|null
+   * @throws InvalidFieldException
+   * @throws InvalidFieldException
+   * @throws InvalidFieldException
    */
-  private function loadModel($uid) {
+  private function loadModel(string $uid): ?CalendarEvent {
     $record = CalendarEventRecord::findOne(['uid' => $uid]);
     if (is_null($record)) {
       return null;

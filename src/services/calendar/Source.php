@@ -2,6 +2,7 @@
 
 namespace lenz\calendarfield\services\calendar;
 
+use Craft;
 use craft\models\EntryType;
 use lenz\calendarfield\services\calendar\adapters\AbstractAdapter;
 use yii\base\BaseObject;
@@ -19,7 +20,7 @@ class Source extends BaseObject
   /**
    * @var int
    */
-  private $_entryTypeId;
+  private int $_entryTypeId;
 
 
   /**
@@ -37,21 +38,21 @@ class Source extends BaseObject
   /**
    * @return EntryType|null
    */
-  public function getEntryType() {
-    return \Craft::$app->sections->getEntryTypeById($this->_entryTypeId);
+  public function getEntryType(): ?EntryType {
+    return Craft::$app->sections->getEntryTypeById($this->_entryTypeId);
   }
 
   /**
    * @return string
    */
-  public function getHandle() {
+  public function getHandle(): string {
     return $this->getEntryType()->handle;
   }
 
   /**
    * @return string
    */
-  public function getName() {
+  public function getName(): string {
     return $this->getEntryType()->name;
   }
 
@@ -63,7 +64,7 @@ class Source extends BaseObject
    * @param AbstractAdapter[] $adapters
    * @return Source[]
    */
-  static public function create($adapters) {
+  static public function create(array $adapters): array {
     $sources = [];
 
     foreach ($adapters as $adapter) {

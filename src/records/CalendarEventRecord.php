@@ -2,8 +2,6 @@
 
 namespace lenz\calendarfield\records;
 
-use craft\db\Migration;
-use craft\db\Table;
 use craft\helpers\DateTimeHelper;
 use DateTime;
 use DateTimeZone;
@@ -93,7 +91,7 @@ class CalendarEventRecord extends ForeignFieldRecord
    * @return DateTime|false
    * @throws Exception
    */
-  static public function getNearestDate(string $column) {
+  static public function getNearestDate(string $column): DateTime|bool {
     $now = (new DateTime('now', new DateTimeZone('UTC')))
       ->format('Y-m-d H:i:s');
 
@@ -112,7 +110,7 @@ class CalendarEventRecord extends ForeignFieldRecord
    * @return DateTime|false
    * @throws Exception
    */
-  static public function getNearestEdge() {
+  static public function getNearestEdge(): DateTime|bool {
     $dateStart = self::getNearestDate('dateStart');
     $dateEnd = self::getNearestDate('dateEnd');
 

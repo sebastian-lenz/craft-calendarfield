@@ -15,15 +15,15 @@ class ExportEvent extends Event
   /**
    * @var CalendarEvent
    */
-  public $calendarEvent;
+  public CalendarEvent $calendarEvent;
 
   /**
    * @var CalendarEventField
    */
-  public $field;
+  public CalendarEventField $field;
 
   /**
    * @var ExportModel
    */
-  public $model;
+  public ExportModel $model;
 }

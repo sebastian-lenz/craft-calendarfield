@@ -32,7 +32,7 @@ class EntryAdapter extends AbstractAdapter
    * @param CalendarEventField $field
    * @return EntryAdapter[]|null
    */
-  static public function create(FieldLayout $layout, CalendarEventField $field) {
+  static function create(FieldLayout $layout, CalendarEventField $field): ?array {
     if ($layout->type != Entry::class) {
       return null;
     }

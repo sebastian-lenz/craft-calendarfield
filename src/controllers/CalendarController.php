@@ -1,5 +1,7 @@
 <?php
 
+/** @noinspection PhpUnused */
+
 namespace lenz\calendarfield\controllers;
 
 use Craft;
@@ -23,8 +25,9 @@ class CalendarController extends Controller
 {
   /**
    * @return Response
+   * @throws Throwable
    */
-  public function actionIndex() {
+  public function actionIndex(): Response {
     return $this->renderTemplate('calendarfield/_calendar', [
       'calendarOptions' => $this->getCalendarOptions(),
       'showSiteMenu'    => true,
@@ -37,12 +40,12 @@ class CalendarController extends Controller
    * @return Response
    * @throws Exception
    */
-  public function actionFetchEvents($start, $end) {
+  public function actionFetchEvents(string $start, string $end): Response {
     $request = Craft::$app->request;
     $recurrences = Plugin::getInstance()->calendar->query()
       ->eventAfter($start)
       ->eventBefore($end)
-      ->siteId($request->getParam('siteId', null))
+      ->siteId($request->getParam('siteId'))
       ->all();
 
     return $this->asJson(array_map(function(Recurrence $recurrence) {
@@ -51,12 +54,10 @@ class CalendarController extends Controller
   }
 
   /**
-   * @param int $eventId
-   * @param array $attributes
    * @return Response
    * @throws Throwable
    */
-  public function actionUpdateEvent() {
+  public function actionUpdateEvent(): Response {
     $request = Craft::$app->request;
     $record = CalendarEventRecord::findOne([
       'id' => $request->post('eventId')
@@ -82,8 +83,9 @@ class CalendarController extends Controller
 
   /**
    * @return array
+   * @throws Throwable
    */
-  private function getCalendarOptions() : array {
+  private function getCalendarOptions(): array {
     return [
       'eventsUrl' => $this->getEventsUrl(),
       'sources'   => $this->getSources(),
@@ -99,14 +101,14 @@ class CalendarController extends Controller
   /**
    * @return string
    */
-  private function getEventsUrl() {
+  private function getEventsUrl(): string {
     return UrlHelper::cpUrl('calendar/fetch-events');
   }
 
   /**
    * @return array
    */
-  private function getSources() {
+  private function getSources(): array {
     return array_map(function(Source $source) {
 
     }, Plugin::getInstance()->calendar->getSources());
@@ -115,17 +117,17 @@ class CalendarController extends Controller
   /**
    * @return string
    */
-  private function getUpdateUrl() {
+  private function getUpdateUrl(): string {
     return UrlHelper::cpUrl('calendar/update-event');
   }
 
   /**
    * @param CalendarEventRecord $record
    * @param array $attributes
-   * @return CalendarEvent
+   * @return CalendarEvent|null
    * @throws Throwable
    */
-  private function updateCalendarEvent(CalendarEventRecord $record, array $attributes) {
+  private function updateCalendarEvent(CalendarEventRecord $record, array $attributes): ?CalendarEvent {
     $field = Craft::$app->getFields()->getFieldById($record->fieldId);
     if (!($field instanceof CalendarEventField)) {
       throw new Exception('Could not resolve field.');

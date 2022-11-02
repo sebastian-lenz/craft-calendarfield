@@ -22,72 +22,72 @@ class SimpleRecurrenceRule extends Model
   /**
    * @var string
    */
-  public $freq = 'none';
+  public string $freq = 'none';
 
   /**
    * @var int
    */
-  public $interval = 1;
+  public int $interval = 1;
 
   /**
    * @var string
    */
-  public $monthlyMode = 'every';
+  public string $monthlyMode = 'every';
 
   /**
    * @var array
    */
-  public $monthlyDate = [];
+  public array $monthlyDate = [];
 
   /**
    * @var string
    */
-  public $monthlyDay = '';
+  public string $monthlyDay = '';
 
   /**
    * @var int
    */
-  public $monthlyDayOffset = 0;
+  public int $monthlyDayOffset = 0;
 
   /**
    * @var string
    */
-  public $until = 'never';
+  public string $until = 'never';
 
   /**
    * @var int
    */
-  public $untilCount = 1;
+  public int $untilCount = 1;
 
   /**
    * @var DateTime|false
    */
-  public $untilDate = false;
+  public false|DateTime $untilDate = false;
 
   /**
    * @var string[]
    */
-  public $weeklyDay = [];
+  public array $weeklyDay = [];
 
   /**
    * @var bool
    */
-  public $yearlyAt = false;
+  public bool $yearlyAt = false;
 
   /**
    * @var array
    */
-  public $yearlyMonths = [];
+  public array $yearlyMonths = [];
 
   /**
    * @var string
    */
-  public $yearlyDay = '';
+  public string $yearlyDay = '';
 
   /**
    * @var int
    */
-  public $yearlyDayOffset = 0;
+  public int $yearlyDayOffset = 0;
 
 
   /**
@@ -222,6 +222,7 @@ class SimpleRecurrenceRule extends Model
   /**
    * @param string $length
    * @return array
+   * @throws Throwable
    */
   public function getAllWeekdays(string $length = Locale::LENGTH_FULL): array {
     $locale = Craft::$app->locale;
@@ -260,6 +261,7 @@ class SimpleRecurrenceRule extends Model
   /**
    * @return array
    * @noinspection PhpUnused ApiMethod
+   * @throws Throwable
    */
   public function getAllWeekdaysShort(): array {
     return array_map(function($option) {
@@ -270,6 +272,7 @@ class SimpleRecurrenceRule extends Model
 
   /**
    * @return array
+   * @throws Throwable
    */
   public function getAllWeekdaysAndGroups(): array {
     $weekdays = $this->getAllWeekdays();
@@ -289,6 +292,7 @@ class SimpleRecurrenceRule extends Model
 
   /**
    * @return array
+   * @throws Throwable
    */
   public function rules(): array {
     $rules = [

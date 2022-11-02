@@ -7,6 +7,7 @@ use craft\base\ElementInterface;
 use craft\helpers\UrlHelper;
 use craft\models\Site;
 use DateTime;
+use DateTimeInterface;
 use DateTimeZone;
 use Exception;
 use RRule\RRule;
@@ -32,27 +33,27 @@ class Recurrence extends BaseObject
   /**
    * @var DateTime
    */
-  private $_dateEnd;
+  private DateTime $_dateEnd;
 
   /**
    * @var DateTime
    */
-  private $_dateStart;
+  private DateTime $_dateStart;
 
   /**
    * @var ElementInterface|null
    */
-  private $_element;
+  private ?ElementInterface $_element;
 
   /**
    * @var ElementInterface|null
    */
-  private $_root;
+  private ?ElementInterface $_root;
 
   /**
    * @var array
    */
-  private $_record;
+  private array $_record;
 
   /**
    * Format used to export json dates.
@@ -119,6 +120,7 @@ class Recurrence extends BaseObject
 
   /**
    * @return int
+   * @noinspection PhpUnused (Public API)
    */
   public function getEventId(): int {
     return $this->_record['id'];
@@ -133,6 +135,7 @@ class Recurrence extends BaseObject
 
   /**
    * @return ElementInterface|null
+   * @noinspection PhpUnused (Public API)
    */
   public function getRoot(): ?ElementInterface {
     if (!isset($this->_root)) {
@@ -184,6 +187,7 @@ class Recurrence extends BaseObject
 
   /**
    * @return string
+   * @noinspection PhpUnused (Public API)
    */
   public function getUid(): string {
     return $this->_record['uid'];
@@ -246,12 +250,12 @@ class Recurrence extends BaseObject
 
   /**
    * @param CalendarEvent $model
-   * @param mixed $after
-   * @param mixed $before
-   * @param mixed $limit
+   * @param DateTimeInterface|int|string|null $after
+   * @param DateTimeInterface|int|string|null $before
+   * @param int|null $limit
    * @return Recurrence[]
    */
-  static public function createForModel(CalendarEvent $model, $after = null, $before = null, $limit = null): array {
+  static public function createForModel(CalendarEvent $model, DateTimeInterface|int|string $after = null, DateTimeInterface|int|string $before = null, int $limit = null): array {
     if (is_null($after)) {
       $after = $model->dateStart;
     }
@@ -278,12 +282,12 @@ class Recurrence extends BaseObject
 
   /**
    * @param array $row
-   * @param mixed $after
-   * @param mixed $before
-   * @param mixed $limit
+   * @param DateTimeInterface|int|string|null $after
+   * @param DateTimeInterface|int|string|null $before
+   * @param int|null $limit
    * @return Recurrence[]
    */
-  static public function createForArray(array $row, $after = null, $before = null, $limit = null): array {
+  static public function createForArray(array $row, DateTimeInterface|int|string $after = null, DateTimeInterface|int|string $before = null, int $limit = null): array {
     try {
       $timezone = $row['dateAllDay'] ? null : new DateTimeZone('UTC');
       $systemTimeZone = $row['dateAllDay'] ? null : new DateTimeZone(Craft::$app->getTimeZone());
@@ -299,7 +303,7 @@ class Recurrence extends BaseObject
 
       $dateStart = $toDateTime($row['dateStart']);
       $dateEnd   = $toDateTime($row['dateEnd']);
-    } catch (Exception $exception) {
+    } catch (Exception) {
       return [];
     }
 
@@ -316,7 +320,7 @@ class Recurrence extends BaseObject
       return [new Recurrence($row, $dateStart, $dateEnd)];
     }
 
-    $rRule    = new RRule($row['rrule'], $dateStart);
+    $rRule = new RRule($row['rrule'], $dateStart);
     $duration = $dateStart->diff($dateEnd);
 
     return array_map(function(DateTime $dateStart) use ($duration, $row) {

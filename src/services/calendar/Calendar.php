@@ -14,19 +14,19 @@ class Calendar extends Component
   /**
    * @var AbstractAdapter[]
    */
-  private $_adapters;
+  private array $_adapters;
 
   /**
    * @var Source[]
    */
-  private $_sources;
+  private array $_sources;
 
 
   /**
    * @param string $handle
    * @return AbstractAdapter|null
    */
-  public function getAdapterByHandle(string $handle) {
+  public function getAdapterByHandle(string $handle): ?AbstractAdapter {
     foreach ($this->getAdapters() as $adapter) {
       if ($adapter->getHandle() == $handle) {
         return $adapter;
@@ -39,7 +39,7 @@ class Calendar extends Component
   /**
    * @return AbstractAdapter[]
    */
-  public function getAdapters() {
+  public function getAdapters(): array {
     if (!isset($this->_adapters)) {
       $this->_adapters = AbstractAdapter::createAll();
     }
@@ -50,7 +50,7 @@ class Calendar extends Component
   /**
    * @return Source[]
    */
-  public function getSources() {
+  public function getSources(): array {
     if (!isset($this->_sources)) {
       $this->_sources = Source::create($this->getAdapters());
     }
@@ -62,7 +62,7 @@ class Calendar extends Component
    * @return CalendarQuery
    * @throws Exception
    */
-  public function query() {
+  public function query(): CalendarQuery {
     return new CalendarQuery();
   }
 }

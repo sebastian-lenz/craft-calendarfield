@@ -15,6 +15,7 @@ use lenz\calendarfield\fields\CalendarEventField;
 use lenz\calendarfield\models\CalendarEvent;
 use lenz\calendarfield\records\CalendarEventRecord;
 use lenz\calendarfield\services\calendar\Calendar;
+use Throwable;
 use yii\base\Event;
 
 /**
@@ -27,7 +28,7 @@ class Plugin extends \craft\base\Plugin
   /**
    * @inheritdoc
    */
-  public $schemaVersion = '1.1.0';
+  public string $schemaVersion = '1.1.0';
 
   /**
    * Event thrown when an ics event is exported.
@@ -38,7 +39,7 @@ class Plugin extends \craft\base\Plugin
   /**
    * @return void
    */
-  public function init() {
+  public function init(): void {
     parent::init();
 
     $this->setComponents([
@@ -57,7 +58,7 @@ class Plugin extends \craft\base\Plugin
       function(RegisterCpNavItemsEvent $event) {
         $navItem = [
           'url'      => 'calendar',
-          'label'    => Craft::t('app', 'Calendar'),
+          'label'    => Craft::t('calendarfield', 'Calendar'),
           'fontIcon' => 'date'
         ];
 
@@ -121,6 +122,7 @@ class Plugin extends \craft\base\Plugin
 
   /**
    * @return int
+   * @throws Throwable
    */
   static public function getWeekStartDay(): int {
     static $weekStartDay;

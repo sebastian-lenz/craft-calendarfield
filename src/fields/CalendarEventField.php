@@ -29,52 +29,52 @@ class CalendarEventField
   /**
    * @var string
    */
-  public $attachmentNameTemplate = '{{ dateStart|date(\'Y-m-d\') }} - {{ summary }}';
+  public string $attachmentNameTemplate = '{{ dateStart|date(\'Y-m-d\') }} - {{ summary }}';
 
   /**
    * @var array
    */
-  public $attributeSettings = [];
+  public array $attributeSettings = [];
 
   /**
    * @var string
    */
-  public $descriptionTemplate = "{{- description -}}\n{{- ownerUrl ? '\\n\\nURL: ' ~ ownerUrl : '' -}}";
+  public string $descriptionTemplate = "{{- description -}}\n{{- ownerUrl ? '\\n\\nURL: ' ~ ownerUrl : '' -}}";
 
   /**
    * @var bool
    */
-  public $enableRRule = false;
+  public bool $enableRRule = false;
 
   /**
    * @var bool
    */
-  public $enableStatus = false;
+  public bool $enableStatus = false;
 
   /**
    * @var float
    */
-  public $initialLatitude = 51.5;
+  public float $initialLatitude = 51.5;
 
   /**
    * @var float
    */
-  public $initialLongitude = -0.09;
+  public float $initialLongitude = -0.09;
 
   /**
    * @var bool
    */
-  public $useOwnerUrl = false;
+  public bool $useOwnerUrl = false;
 
   /**
    * @var TemplateWrapper
    */
-  private $_attachmentNameTemplate;
+  private TemplateWrapper $_attachmentNameTemplate;
 
   /**
    * @var TemplateWrapper
    */
-  private $_descriptionTemplate;
+  private TemplateWrapper $_descriptionTemplate;
 
   /**
    * Known attributes that have additional settings.
@@ -167,7 +167,7 @@ class CalendarEventField
    * @return string
    * @throws InvalidConfigException
    */
-  public function getTableAttributeHtml($value, ElementInterface $element): string {
+  public function getTableAttributeHtml(mixed $value, ElementInterface $element): string {
     return $value instanceof CalendarEvent
       ? $value->getDateRangeFormatted()
       : '-';
@@ -205,11 +205,11 @@ class CalendarEventField
    * @inheritDoc
    * @throws Exception
    */
-  public function normalizeValue($value, ElementInterface $element = null) {
+  public function normalizeValue(mixed $value, ?ElementInterface $element = null): ForeignFieldModel {
     if (is_string($value)) {
       try {
         $value = Json::decode($value);
-      } catch (Throwable $error) {
+      } catch (Throwable) {
         // Ignore this
       }
     }
@@ -240,16 +240,15 @@ class CalendarEventField
   /**
    * @return void
    * @throws Exception
+   * @noinspection PhpUnused (Validator)
    */
-  public function validateAttributeSettings() {
+  public function validateAttributeSettings(): void {
     $validated = [];
-    $values = is_array($this->attributeSettings)
-      ? $this->attributeSettings
-      : [];
+    $values = $this->attributeSettings;
 
     foreach (self::ATTRIBUTES_WITH_SETTINGS as $name) {
       $validated[$name] = [
-        'hidden'       => !!ArrayHelper::getValue($values, [$name, 'hidden'], false),
+        'hidden' => !!ArrayHelper::getValue($values, [$name, 'hidden'], false),
         'translatable' => !!ArrayHelper::getValue($values, [$name, 'translatable'], false),
       ];
     }
@@ -267,7 +266,7 @@ class CalendarEventField
    * @param bool $disabled
    * @return string
    */
-  protected function getHtml(ForeignFieldModel $value, ElementInterface $element = null, $disabled = false): string {
+  protected function getHtml(ForeignFieldModel $value, ElementInterface $element = null, bool $disabled = false): string {
     return $this->render(static::inputTemplate(), [
       'disabled' => $disabled,
       'field'    => $this,
@@ -282,6 +281,7 @@ class CalendarEventField
    * @throws Exception
    */
   protected function toRecordAttributes(ForeignFieldModel $model, ElementInterface $element): array {
+    /** @noinspection PhpConditionAlreadyCheckedInspection */
     if (!($model instanceof CalendarEvent)) {
       throw new Exception('Invalid model given');
     }

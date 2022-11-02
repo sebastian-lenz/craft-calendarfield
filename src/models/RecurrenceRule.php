@@ -241,11 +241,11 @@ class RecurrenceRule extends RecurrenceRuleBase
   // --------------
 
   /**
-   * @param array|int|null|string $value
+   * @param array|int|string|null $value
    * @param callable $validator
    * @return string|null
    */
-  public static function toIntegerList($value, callable $validator): ?string {
+  public static function toIntegerList(array|int|string|null $value, callable $validator): ?string {
     if (is_null($value)) {
       return null;
     }
@@ -271,11 +271,11 @@ class RecurrenceRule extends RecurrenceRuleBase
   }
 
   /**
-   * @param array|null|string $value
+   * @param array|string|null $value
    * @param callable $validator
    * @return string|null
    */
-  public static function toStringList($value, callable $validator): ?string {
+  public static function toStringList(array|string|null $value, callable $validator): ?string {
     if (is_null($value)) {
       return null;
     }
