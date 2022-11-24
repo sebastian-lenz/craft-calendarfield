@@ -21,20 +21,25 @@ class Install extends Migration
     }
 
     CalendarEventRecord::createTable($this, [
-      'title'        => $this->char(255),
-      'description'  => $this->text(),
-      'location'     => $this->text(),
-      'status'       => $this->enum('status', CalendarEventRecord::STATUSES),
-      'dateAllDay'   => $this->boolean(),
-      'dateStart'    => $this->dateTime(),
-      'dateEnd'      => $this->dateTime(),
-      'geoLatitude'  => $this->decimal(20, 16),
-      'geoLongitude' => $this->decimal(20, 16),
-      'rrule'        => $this->text(),
+      'rootId'        => $this->integer()->notNull(),
+      'calendarTitle' => $this->char(255),
+      'description'   => $this->text(),
+      'location'      => $this->text(),
+      'status'        => $this->enum('status', CalendarEventRecord::STATUSES),
+      'dateAllDay'    => $this->boolean(),
+      'dateStart'     => $this->dateTime(),
+      'dateEnd'       => $this->dateTime(),
+      'dateTill'      => $this->dateTime(),
+      'geoLatitude'   => $this->decimal(20, 16),
+      'geoLongitude'  => $this->decimal(20, 16),
+      'rrule'         => $this->text(),
     ]);
 
-    $this->createIndex(null, $table, ['dateStart']);
-    $this->createIndex(null, $table, ['dateEnd']);
+    $this->createIndex('idx_lenz_calendarfield_dateEnd', $table, ['dateEnd']);
+    $this->createIndex('idx_lenz_calendarfield_dateStart', $table, ['dateStart']);
+    $this->createIndex('idx_lenz_calendarfield_dateTill', $table, ['dateTill']);
+    $this->createIndex('idx_lenz_calendarfield_rootId', $table, ['rootId']);
+    $this->addForeignKey('fk_lenz_calendarfield_rootId', $table, ['rootId'], Table::ELEMENTS, ['id'], 'CASCADE', null);
   }
 
   /**
