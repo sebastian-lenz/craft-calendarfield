@@ -130,7 +130,7 @@ class Recurrence extends BaseObject
    * @return bool
    */
   public function getIsEditable(): bool {
-    return !is_null($this->_root) && $this->_root->getIsEditable();
+    return !is_null($this->_root) && Craft::$app->elements->canSave($this->_root);
   }
 
   /**
@@ -232,7 +232,7 @@ class Recurrence extends BaseObject
    */
   protected function getExtendedProps(): array {
     $editUrl = null;
-    if (!is_null($this->_root) && $this->_root->getIsEditable()) {
+    if (!is_null($this->_root) && Craft::$app->elements->canSave($this->_root)) {
       $editUrl = UrlHelper::url($this->_root->getCpEditUrl(), [
         'redirect' => 'calendar',
       ]);
