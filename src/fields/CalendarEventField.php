@@ -157,7 +157,7 @@ class CalendarEventField
     return [
       'label'     => $this->name,
       'orderBy'   => $this->handle . '.dateStart',
-      'attribute' => 'field:' . $this->id,
+      'attribute' => "field:$this->uid",
     ];
   }
 
