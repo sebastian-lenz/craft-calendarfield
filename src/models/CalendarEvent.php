@@ -118,17 +118,17 @@ class CalendarEvent extends ForeignFieldModel
       unset($config['rrule']);
     }
 
-    parent::__construct($field, $owner, $config);
-  }
+    $dateAllDay = !empty($config['dateAllDay']);
+    foreach (['dateEnd', 'dateStart'] as $attribute) {
+      if (!empty($config[$attribute])) {
+        $config[$attribute] = DateTimeHelper::toDateTime($config[$attribute], false, !$dateAllDay);
+        if ($dateAllDay) {
+          self::convertTimezone(Craft::$app->getTimeZone(), $config[$attribute], $config[$attribute]);
+        }
+      }
+    }
 
-  /**
-   * @inheritDoc
-   */
-  public function datetimeAttributes(): array {
-    $attributes = parent::datetimeAttributes();
-    $attributes[] = 'dateEnd';
-    $attributes[] = 'dateStart';
-    return $attributes;
+    parent::__construct($field, $owner, $config);
   }
 
   /**
@@ -412,26 +412,6 @@ class CalendarEvent extends ForeignFieldModel
    */
   public function hasSimpleRecurrenceRule(): bool {
     return isset($this->_simpleRRule);
-  }
-
-  /**
-   * @inheritDoc
-   * @throws Exception
-   */
-  public function init(): void {
-    foreach ($this->datetimeAttributes() as $attribute) {
-      if ($this->$attribute !== null) {
-        $this->$attribute = DateTimeHelper::toDateTime(
-          $this->$attribute, false, !$this->dateAllDay
-        );
-
-        if ($this->dateAllDay) {
-          self::convertTimezone(Craft::$app->getTimeZone(), $this->$attribute, $this->$attribute);
-        }
-      }
-    }
-
-    parent::init();
   }
 
   /**
