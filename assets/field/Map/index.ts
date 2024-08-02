@@ -67,6 +67,10 @@ export default class Map {
   createMap() {
     if (!this.map) {
       const plugin = this.$container.find('.calendarfield--mapPlugin').get(0);
+      if (!plugin) {
+        return;
+      }
+
       const map = L.map(plugin);
       map.setView(this.getLatLng(), this.initialZoom);
 

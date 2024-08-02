@@ -53,7 +53,7 @@ export default class Field {
         }
       });
 
-    new DatePair($wrapper.get(0));
+    $wrapper.each((_, el) => { new DatePair(el) });
   }
 
   createSelectToggles() {

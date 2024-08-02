@@ -29,7 +29,7 @@ let r=null
 if(this.$container=e,this.$dateAllDay=e.find(t.dateAllDay),!e.data("ICalField.Date")&&(e.data("ICalField.Date",this),this.createSelectToggles(),this.createDatePair(),this.updateState(),!t.disabled)){var i=this
 this.$dateAllDay.parent().on("click",(()=>{i.updateState()}))}}createDatePair(){const t=this.$container.find(".calendarfield--dateCommon")
 t.length&&(t.find(".datewrapper > input, .timewrapper > input").each(((t,e)=>{const i=e.getAttribute("name")||"",a=/\[(?:date(End|Start))\]\[(date|time)\]/.exec(i)
-a&&e.classList.add(`${a[1]}`.toLowerCase(),`${a[2]}`.toLowerCase())})),new a(t.get(0)))}createSelectToggles(){this.$container.find(".calendarfield--selectToggle").each((function(t,e){const i=$(e),a=i.find("select"),s=i.closest(".calendarfield--toggleScope")
+a&&e.classList.add(`${a[1]}`.toLowerCase(),`${a[2]}`.toLowerCase())})),t.each(((t,e)=>{new a(e)})))}createSelectToggles(){this.$container.find(".calendarfield--selectToggle").each((function(t,e){const i=$(e),a=i.find("select"),s=i.closest(".calendarfield--toggleScope")
 let n=a.val()+""
 a.on("click change",(function(){const t=a.val()+""
 t!==n&&(s.removeClass(n).addClass(t),n=t)}))}))}isAllDay(){return!!this.$dateAllDay.val()}updateState(){this.$container.find(".timewrapper").toggle(!this.isAllDay())}}const n=L
@@ -43,7 +43,9 @@ e.data("ICalField.Map",this),this.disabled=!!t.disabled,this.latitude=parseFloat
 const i=parseFloat(t.initialLatitude),a=parseFloat(t.initialLongitude)
 isNaN(i)||isNaN(a)||(this.initialLatitude=i,this.initialLongitude=a),isNaN(this.latitude)||isNaN(this.latitude)||(this.$enabled.prop("checked",!0),this.updateState())
 var s=this
-this.$enabled.parent().on("click",(function(){s.updateState()}))}createMap(){if(!this.map){const t=this.$container.find(".calendarfield--mapPlugin").get(0),e=n.map(t)
+this.$enabled.parent().on("click",(function(){s.updateState()}))}createMap(){if(!this.map){const t=this.$container.find(".calendarfield--mapPlugin").get(0)
+if(!t)return
+const e=n.map(t)
 e.setView(this.getLatLng(),this.initialZoom),n.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',minZoom:1,maxZoom:19}).addTo(e)
 const i=n.marker(this.getLatLng(),{draggable:!this.disabled}).addTo(e)
 i.on("dragend",this.onMarkerDragEnd),n.Control.geocoder({defaultMarkGeocode:!1}).on("markgeocode",this.onMarkGeoCode).addTo(e),Garnish.$win.on("resize",(function(){e.invalidateSize()})),this.map=e,this.marker=i}}getLatLng(){return[isNaN(this.latitude)?this.initialLatitude:this.latitude,isNaN(this.longitude)?this.initialLongitude:this.longitude]}isEnabled(){return this.$enabled.prop("checked")}updateState(){if(this.isEnabled()){const t=this.getLatLng()
