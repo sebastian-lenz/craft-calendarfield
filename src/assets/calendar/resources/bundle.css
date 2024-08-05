@@ -1459,4 +1459,4 @@ A VERTICAL event
     text-decoration: underline;
   }
 
-#global-footer{display:none}#main,#main-container,#main-content,#main-form,#content-container,#content{display:flex;flex-flow:column nowrap;align-items:stretch;flex-grow:1}#main-content{padding-bottom:24px}#content-header{margin:0}.calendarfield--calendarWrap{position:relative;width:100%;min-height:600px;flex:1}
+body.calendarfield #global-footer,body.calendarfield #header-container{display:none}body.calendarfield #main,body.calendarfield #content,body.calendarfield #content-container,body.calendarfield .content-grid,body.calendarfield .content-grid__main{height:100%}body.calendarfield #main-content{height:100%;padding-bottom:var(--padding)}.calendarfield--calendarWrap{position:relative;width:100%;min-height:600px;flex:1}.calendarfield--calendar{position:absolute;top:0;left:0;width:100%;height:100%}

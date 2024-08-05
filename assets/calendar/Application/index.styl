@@ -1,25 +1,28 @@
-#global-footer
-  display: none
+body.calendarfield
+  #global-footer,
+  #header-container
+    display: none
 
-#main,
-#main-container,
-#main-content,
-#main-form,
-#content-container,
-#content
-  display: flex
-  flex-flow: column nowrap
-  align-items: stretch
-  flex-grow: 1
+  #main,
+  #content,
+  #content-container,
+  .content-grid,
+  .content-grid__main
+    height: 100%
 
-#main-content
-  padding-bottom: 24px
-
-#content-header
-  margin: 0
+  #main-content
+    height: 100%
+    padding-bottom: var(--padding)
 
 .calendarfield--calendarWrap
   position: relative
   width: 100%
   min-height: 600px
   flex: 1
+
+.calendarfield--calendar
+  position: absolute
+  top: 0
+  left: 0
+  width: 100%
+  height: 100%

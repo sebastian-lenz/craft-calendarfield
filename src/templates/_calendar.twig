@@ -2,13 +2,24 @@
 
 {% do view.registerAssetBundle('lenz\\calendarfield\\assets\\calendar\\CalendarAsset') %}
 
-{% set docTitle = 'Calendar' %}
+{% set selectableSites = craft.app.sites.getEditableSites() %}
+{% if requestedSite and requestedSite in selectableSites %}
+  {% set selectedSite = requestedSite %}
+{% else %}
+  {% set selectedSite = selectableSites|length ? selectableSites|first : craft.app.sites.getPrimarySite() %}
+{% endif %}
 
-{% block contextMenu %}
-  {% if showSiteMenu %}
-    {% include "_elements/sitemenu" %}
-  {% endif %}
-{% endblock %}
+{% set bodyClass = 'calendarfield' %}
+{% set docTitle = 'Calendar' %}
+{% set crumbs = [{
+  id: 'site-crumb',
+  icon: 'world',
+  label: selectedSite.name|t('site'),
+  menu: {
+    items: siteMenuItems(selectableSites, selectedSite),
+    label: 'Select site'|t('app')
+  }
+}] %}
 
 {% block content %}
   <div class="calendarfield--calendarWrap">

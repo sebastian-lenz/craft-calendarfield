@@ -196,14 +196,14 @@ class Recurrence extends BaseObject
   /**
    * @param ElementInterface $element
    */
-  public function setElement(ElementInterface $element) {
+  public function setElement(ElementInterface $element): void {
     $this->_element = $element;
   }
 
   /**
    * @param ElementInterface $root
    */
-  public function setRoot(ElementInterface $root) {
+  public function setRoot(ElementInterface $root): void {
     $this->_root = $root;
   }
 
@@ -212,13 +212,23 @@ class Recurrence extends BaseObject
    * @throws Exception
    */
   public function toFullCalendarEvent(): array {
+    $allDay = !!$this->_record['dateAllDay'];
+    $dateEnd = $this->_dateEnd;
+    $dateStart = $this->_dateStart;
+
+    if ($allDay) {
+      $tz = new DateTimeZone('GMT');
+      $dateEnd = $dateEnd->setTimezone($tz)->setTime(23, 59, 59);
+      $dateStart = $dateStart->setTimezone($tz);
+    }
+
     return [
-      'allDay'        => !!$this->_record['dateAllDay'],
+      'allDay'        => $allDay,
       'editable'      => $this->getIsEditable(),
-      'end'           => $this->_dateEnd->format(self::JSON_DATE_FORMAT),
+      'end'           => $dateEnd->format(self::JSON_DATE_FORMAT),
       'extendedProps' => $this->getExtendedProps(),
       'groupId'       => $this->_record['id'],
-      'start'         => $this->_dateStart->format(self::JSON_DATE_FORMAT),
+      'start'         => $dateStart->format(self::JSON_DATE_FORMAT),
       'title'         => $this->getTitle(),
     ];
   }

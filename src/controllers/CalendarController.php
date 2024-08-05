@@ -9,6 +9,7 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
 use Exception;
+use Illuminate\Support\Arr;
 use lenz\calendarfield\fields\CalendarEventField;
 use lenz\calendarfield\models\CalendarEvent;
 use lenz\calendarfield\models\Recurrence;
@@ -143,10 +144,21 @@ class CalendarController extends Controller
       throw new Exception('Could not create model.');
     }
 
-    foreach ($model->datetimeAttributes() as $name) {
-      if (array_key_exists($name, $attributes)) {
-        $attributes[$name] = DateTimeHelper::toDateTime($attributes[$name]);
+    foreach ($attributes as $name => $value) {
+      if (!in_array($name, ['dateEnd', 'dateStart'])) {
+        continue;
       }
+
+      $value = DateTimeHelper::toDateTime($attributes[$name]);
+      if ($model->dateAllDay) {
+        if ($name == 'dateEnd') {
+          $value = $value->setTime(0, 0, -1);
+        } else {
+          $value = $value->setTime(0, 0);
+        }
+      }
+
+      $attributes[$name] = $value;
     }
 
     $model->setAttributes($attributes);

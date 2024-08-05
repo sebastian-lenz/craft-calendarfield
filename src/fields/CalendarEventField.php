@@ -167,7 +167,7 @@ class CalendarEventField
    * @return string
    * @throws InvalidConfigException
    */
-  public function getTableAttributeHtml(mixed $value, ElementInterface $element): string {
+  public function getPreviewHtml(mixed $value, ElementInterface $element): string {
     return $value instanceof CalendarEvent
       ? $value->getDateRangeFormatted()
       : '-';

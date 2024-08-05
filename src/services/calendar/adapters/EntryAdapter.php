@@ -37,7 +37,8 @@ class EntryAdapter extends AbstractAdapter
       return null;
     }
 
-    $types = Craft::$app->sections->getAllEntryTypes();
+
+    $types = Craft::$app->getEntries()->getAllEntryTypes();
     foreach ($types as $type) {
       if ($type->fieldLayoutId != $layout->id) {
         continue;
