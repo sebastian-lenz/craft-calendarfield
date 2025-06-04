@@ -15,6 +15,7 @@ use lenz\calendarfield\fields\CalendarEventField;
 use lenz\calendarfield\models\CalendarEvent;
 use lenz\calendarfield\records\CalendarEventRecord;
 use lenz\calendarfield\services\calendar\Calendar;
+use lenz\craft\utils\foreignField\ForeignFieldQueryListener;
 use Throwable;
 use yii\base\Event;
 
@@ -45,6 +46,8 @@ class Plugin extends \craft\base\Plugin
     $this->setComponents([
       'calendar' => Calendar::class,
     ]);
+
+    ForeignFieldQueryListener::init();
 
     Event::on(
       Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES,
