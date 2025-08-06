@@ -9,7 +9,7 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
 use Exception;
-use Illuminate\Support\Arr;
+use lenz\calendarfield\events\FetchCalendarEvent;
 use lenz\calendarfield\fields\CalendarEventField;
 use lenz\calendarfield\models\CalendarEvent;
 use lenz\calendarfield\models\Recurrence;
@@ -24,6 +24,12 @@ use yii\web\Response;
  */
 class CalendarController extends Controller
 {
+  /**
+   * @var string
+   */
+  const EVENT_FETCH_CALENDAR = 'fetchCalendar';
+
+
   /**
    * @return Response
    * @throws Throwable
@@ -42,16 +48,16 @@ class CalendarController extends Controller
    * @throws Exception
    */
   public function actionFetchEvents(string $start, string $end): Response {
-    $request = Craft::$app->request;
-    $recurrences = Plugin::getInstance()->calendar->query()
-      ->eventAfter($start)
-      ->eventBefore($end)
-      ->siteId($request->getParam('siteId'))
-      ->all();
+    $event = new FetchCalendarEvent([
+      'end' => $end,
+      'start' => $start,
+    ]);
+
+    $this->trigger(self::EVENT_FETCH_CALENDAR, $event);
 
     return $this->asJson(array_map(function(Recurrence $recurrence) {
       return $recurrence->toFullCalendarEvent();
-    }, $recurrences));
+    }, $event->getRecurrences()));
   }
 
   /**
