@@ -4,7 +4,7 @@
   "type": "craft-plugin",
   "license": "MIT",
   "require": {
-    "craftcms/cms": "^5.0.0",
+    "craftcms/cms": "^5.9.12",
     "eluceo/ical": "^0.15.0",
     "rlanvin/php-rrule": "^2.2",
     "sebastianlenz/craft-utils": "^4.0.7"
