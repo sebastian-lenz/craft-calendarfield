@@ -35,6 +35,7 @@ class FetchCalendarEvent extends Event
     $query = Plugin::getInstance()
       ->calendar
       ->query()
+      ->status(null)
       ->eventAfter($this->start)
       ->eventBefore($this->end);
 

@@ -205,6 +205,7 @@ class CalendarQuery extends EntryQuery
     $roots = Entry::findAll([
       'id'     => $rootIds,
       'siteId' => $siteIds,
+      'status' => $this->status,
       'with'   => $this->originalWith,
     ]);
 
